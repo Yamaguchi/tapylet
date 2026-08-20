@@ -13,15 +13,18 @@
     "copied": "コピーしました",
     "decimalHint": "小数点第{{decimals}}位まで入力可能"
   },
+  "network": {
+    "mainnet": "メインネット",
+    "testnet": "テストネット"
+  },
   "wallet": {
     "title": "Tapylet",
-    "testnet": "テストネット",
     "totalBalance": "残高",
     "confirmed": "承認済み",
     "unconfirmed": "未承認",
     "yourAddress": "あなたのアドレス",
     "assets": "アセット",
-    "connectedTo": "Tapyrus テストネットに接続中",
+    "connectedTo": "Tapyrus {{network}}に接続中",
     "failedToLoad": "読み込み失敗"
   },
   "send": {
@@ -160,6 +163,7 @@
     "about": "アプリ情報",
     "version": "バージョン",
     "network": "ネットワーク",
+    "networkDescription": "接続するTapyrusネットワークを選択します",
     "legal": "法的情報",
     "termsOfService": "利用規約",
     "privacyPolicy": "プライバシーポリシー",

@@ -4,6 +4,7 @@ import { Button, Input } from "../ui"
 import { issueToken, type TokenType, type MetadataFields } from "@tapylet/core/wallet/issuance"
 import { issuedTokenStore } from "~/extension/storage"
 import { walletStorage } from "~/extension/storage"
+import { useNetwork } from "~/extension/hooks/useNetwork"
 import { formatColorId } from "@tapylet/core/api"
 import { parseAndValidateAmount, MAX_COLORED_AMOUNT } from "@tapylet/core/utils/validation"
 
@@ -25,6 +26,7 @@ export const IssueModal: React.FC<IssueModalProps> = ({
   onSuccess,
 }) => {
   const { t } = useTranslation()
+  const { network } = useNetwork()
   const [step, setStep] = useState<IssueStep>("input")
   const [error, setError] = useState<string | null>(null)
 
@@ -564,7 +566,7 @@ export const IssueModal: React.FC<IssueModalProps> = ({
                 <div className="space-y-2 max-h-48 overflow-y-auto">
                   <div className="p-2 bg-slate-50 rounded-lg">
                     <p className="text-xs text-slate-500">Network</p>
-                    <p className="text-sm font-medium text-slate-800">testnet</p>
+                    <p className="text-sm font-medium text-slate-800">{t(network.labelKey)}</p>
                   </div>
                   <div className="p-2 bg-slate-50 rounded-lg">
                     <div className="flex items-center justify-between">

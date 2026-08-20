@@ -7,6 +7,8 @@ import { pendingTxStore, type PendingTransaction } from "~/extension/storage"
 import { issuedTokenStore } from "~/extension/storage"
 import { getAllBalances, formatTpc, formatTokenAmount, getTransactionInfo, formatColorId, getExplorerColorUrl, getTokenMetadataBatch, Metadata, type AllBalances } from "@tapylet/core/api"
 import { sanitizeImageUrl } from "@tapylet/core/utils/sanitize"
+import { useNetwork } from "~/extension/hooks/useNetwork"
+import { getNetwork } from "~/extension/constants/network"
 import type { AppScreen } from "~/extension/types/navigation"
 
 interface MainWalletScreenProps {
@@ -19,6 +21,7 @@ export const MainWalletScreen: React.FC<MainWalletScreenProps> = ({
   onNavigate,
 }) => {
   const { t } = useTranslation()
+  const { network } = useNetwork()
   const [showReceiveModal, setShowReceiveModal] = useState(false)
   const [showSendModal, setShowSendModal] = useState(false)
   const [showIssueModal, setShowIssueModal] = useState(false)
@@ -36,11 +39,22 @@ export const MainWalletScreen: React.FC<MainWalletScreenProps> = ({
   }
 
   const refreshData = useCallback(async () => {
+    // A refresh started before a network switch must not finish after it: its
+    // results describe the previous chain, and pendingTxStore writes would
+    // land in the new network's namespace.
+    const startedOn = getNetwork().id
+    const isStale = () => getNetwork().id !== startedOn
+
     // Check and remove confirmed transactions
     const txs = await pendingTxStore.getAll()
     for (const tx of txs) {
+      if (isStale()) return
       try {
         const info = await getTransactionInfo(tx.txid)
+        // Checked again after the request: the switch can land while it is in
+        // flight, and the removal below would then write to the new network's
+        // namespace.
+        if (isStale()) return
         if (info.status.confirmed) {
           await pendingTxStore.remove(tx.txid)
         }
@@ -58,6 +72,8 @@ export const MainWalletScreen: React.FC<MainWalletScreenProps> = ({
       pendingTxStore.getAll(),
     ])
 
+    if (isStale()) return
+
     // Update state together
     if (allBal) {
       setBalances(allBal)
@@ -70,6 +86,7 @@ export const MainWalletScreen: React.FC<MainWalletScreenProps> = ({
           getTokenMetadataBatch(colorIds),
           issuedTokenStore.getAll(),
         ])
+        if (isStale()) return
         // Merge: registry metadata takes priority, fall back to local
         const mergedMeta = new Map<string, Metadata>(registryMeta)
         for (const issued of issuedTokens) {
@@ -94,8 +111,9 @@ export const MainWalletScreen: React.FC<MainWalletScreenProps> = ({
 
   return (
     <div className="flex flex-col h-full">
-      {/* Header */}
-      <div className="bg-primary-600 text-white p-6 pb-12">
+      {/* Header — tinted with the selected network's colour so the network in
+          use is visible without reading the badge. */}
+      <div className={`${network.headerClass} text-white p-6 pb-12`}>
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
@@ -116,7 +134,7 @@ export const MainWalletScreen: React.FC<MainWalletScreenProps> = ({
           </div>
           <div className="flex items-center gap-2">
             <span className="text-xs bg-white/20 px-2 py-1 rounded">
-              {t("wallet.testnet")}
+              {t(network.labelKey)}
             </span>
             <button
               onClick={() => onNavigate("settings")}
@@ -329,7 +347,7 @@ export const MainWalletScreen: React.FC<MainWalletScreenProps> = ({
       {/* Footer */}
       <div className="p-6 pt-0">
         <p className="text-xs text-slate-400 text-center">
-          {t("wallet.connectedTo")}
+          {t("wallet.connectedTo", { network: t(network.labelKey) })}
         </p>
       </div>
 

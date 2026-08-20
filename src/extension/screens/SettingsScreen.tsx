@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { Card, CardContent } from "../components/ui"
 import { settingsStore, AUTO_LOCK_OPTIONS, DEFAULT_AUTO_LOCK_MINUTES } from "~/extension/storage"
+import { useNetwork } from "~/extension/hooks/useNetwork"
+import { NETWORK_KEYS, NETWORKS, type NetworkKey } from "~/extension/constants/network"
 import type { AppScreen } from "~/extension/types/navigation"
 
 const LEGAL_BASE_URL = "https://chaintope.github.io/tapylet"
@@ -17,11 +19,23 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
   onNavigate,
 }) => {
   const { t } = useTranslation()
+  const { network, switchNetwork } = useNetwork()
   const [autoLockMinutes, setAutoLockMinutes] = useState<number>(DEFAULT_AUTO_LOCK_MINUTES)
 
   useEffect(() => {
     settingsStore.getAutoLockMinutes().then(setAutoLockMinutes)
   }, [])
+
+  const handleNetworkChange = (key: NetworkKey) => {
+    if (key === network.key) return
+    switchNetwork(key).catch((err) => {
+      // Either half can fail. A rejected configureNetwork leaves everything on
+      // the previous network; a failed write leaves the panel on the new one
+      // until it is next opened. Both are reported the same way because
+      // neither leaves core and the UI disagreeing.
+      console.error("Failed to switch the network:", err)
+    })
+  }
 
   const handleAutoLockChange = async (minutes: number) => {
     setAutoLockMinutes(minutes)
@@ -37,8 +51,10 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
 
   return (
     <div className="flex flex-col h-full">
-      {/* Header */}
-      <div className="bg-primary-600 text-white p-6">
+      {/* Header — tinted with the selected network's colour, matching the
+          wallet screen, so the two do not disagree about which network is in
+          use. */}
+      <div className={`${network.headerClass} text-white p-6`}>
         <div className="flex items-center gap-3">
           <button
             onClick={() => onNavigate("main")}
@@ -62,6 +78,60 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
 
       {/* Content */}
       <div className="flex-1 p-6 space-y-4">
+        {/* Network */}
+        <Card>
+          <CardContent>
+            <h2 className="text-sm font-medium text-slate-700 mb-1">
+              {t("settings.network")}
+            </h2>
+            <p className="text-xs text-slate-500 mb-3">
+              {t("settings.networkDescription")}
+            </p>
+            <div className="space-y-2">
+              {NETWORK_KEYS.map((key) => {
+                const option = NETWORKS[key]
+                const isActive = key === network.key
+                return (
+                  <button
+                    key={key}
+                    onClick={() => handleNetworkChange(key)}
+                    className={`w-full flex items-center justify-between p-2 rounded-lg border transition-colors ${
+                      isActive
+                        ? `${option.activeBorderClass} bg-slate-50`
+                        : "border-slate-200 hover:bg-slate-50"
+                    }`}>
+                    <span className="flex items-center gap-2">
+                      <span className={`w-2 h-2 rounded-full ${option.dotClass}`} />
+                      <span
+                        className={`text-sm ${
+                          isActive
+                            ? `font-medium ${option.activeTextClass}`
+                            : "text-slate-700"
+                        }`}>
+                        {t(option.labelKey)}
+                      </span>
+                    </span>
+                    {isActive && (
+                      <svg
+                        className={`w-4 h-4 ${option.activeTextClass}`}
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24">
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M5 13l4 4L19 7"
+                        />
+                      </svg>
+                    )}
+                  </button>
+                )
+              })}
+            </div>
+          </CardContent>
+        </Card>
+
         {/* Security */}
         <Card>
           <CardContent>
@@ -95,15 +165,9 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
             <h2 className="text-sm font-medium text-slate-700 mb-3">
               {t("settings.about")}
             </h2>
-            <div className="space-y-2">
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-slate-600">{t("settings.version")}</span>
-                <span className="text-sm font-mono text-slate-800">{APP_VERSION}</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-slate-600">{t("settings.network")}</span>
-                <span className="text-sm text-slate-800">{t("wallet.testnet")}</span>
-              </div>
+            <div className="flex justify-between items-center">
+              <span className="text-sm text-slate-600">{t("settings.version")}</span>
+              <span className="text-sm font-mono text-slate-800">{APP_VERSION}</span>
             </div>
           </CardContent>
         </Card>
