@@ -7,14 +7,43 @@ import { IssuedTokenStore } from "@tapylet/core/storage/issuedTokenStore"
 import { PendingTxStore } from "@tapylet/core/storage/pendingTxStore"
 import { SettingsStore } from "@tapylet/core/storage/settingsStore"
 import { PlasmoKeyValueStore, PlasmoSecureStore } from "./adapters/plasmo"
+import { networkKeyPrefix, PrefixedKeyValueStore } from "./adapters/prefixed"
+import {
+  adoptLegacyNetworkChoice,
+  migrateLegacyNetworkKeys,
+} from "./migrations"
+import { NetworkStore } from "./networkStore"
+import { getNetwork } from "~/extension/constants/network"
+
+const plainStore = new PlasmoKeyValueStore()
+
+// Data that describes chain state belongs to one network; data that describes
+// the user (the wallet itself, the auto-lock preference, the network choice)
+// is shared across both. Addresses are identical on every Tapyrus network —
+// the derivation path is fixed (see @tapylet/core/wallet) — so the wallet does
+// not need re-deriving on a switch.
+const networkScopedStore = new PrefixedKeyValueStore(plainStore, () =>
+  networkKeyPrefix(getNetwork().id),
+)
 
 export const walletStorage = new WalletStorage(
   new PlasmoSecureStore(),
-  new PlasmoKeyValueStore(),
+  plainStore,
 )
-export const issuedTokenStore = new IssuedTokenStore(new PlasmoKeyValueStore())
-export const pendingTxStore = new PendingTxStore(new PlasmoKeyValueStore())
-export const settingsStore = new SettingsStore(new PlasmoKeyValueStore())
+export const settingsStore = new SettingsStore(plainStore)
+export const networkStore = new NetworkStore(plainStore)
+export const issuedTokenStore = new IssuedTokenStore(networkScopedStore)
+export const pendingTxStore = new PendingTxStore(networkScopedStore)
+
+/**
+ * Brings already-stored data up to date with the current layout. Awaited before
+ * the network choice is read, and so before any screen is shown (see
+ * ~/extension/hooks/useNetwork).
+ */
+export const runStorageMigrations = async (): Promise<void> => {
+  await migrateLegacyNetworkKeys(plainStore)
+  await adoptLegacyNetworkChoice(plainStore, () => walletStorage.walletExists())
+}
 
 // Re-export core types and constants so callers can import everything from here.
 export type { IssuedToken } from "@tapylet/core/storage/issuedTokenStore"

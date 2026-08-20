@@ -6,6 +6,7 @@ import { issuedTokenStore, type IssuedToken } from "~/extension/storage"
 import { sanitizeUrl, sanitizeImageUrl } from "@tapylet/core/utils/sanitize"
 import { burnAsset } from "@tapylet/core/wallet/transaction"
 import { walletStorage } from "~/extension/storage"
+import { useNetwork } from "~/extension/hooks/useNetwork"
 import { parseAndValidateAmount, MAX_COLORED_AMOUNT } from "@tapylet/core/utils/validation"
 import type { AssetBalance, Metadata } from "@tapylet/core/api"
 
@@ -33,6 +34,7 @@ export const AssetDetailModal: React.FC<AssetDetailModalProps> = ({
   onBurnSuccess,
 }) => {
   const { t } = useTranslation()
+  const { network } = useNetwork()
   const [copied, setCopied] = useState(false)
   const [copiedField, setCopiedField] = useState<string | null>(null)
   const [issuedToken, setIssuedToken] = useState<IssuedToken | null>(null)
@@ -377,7 +379,7 @@ export const AssetDetailModal: React.FC<AssetDetailModalProps> = ({
 
                 <div>
                   <p className="text-xs text-slate-500 mb-1">Network</p>
-                  <p className="text-sm font-medium text-slate-800">testnet</p>
+                  <p className="text-sm font-medium text-slate-800">{t(network.labelKey)}</p>
                 </div>
 
                 <div>

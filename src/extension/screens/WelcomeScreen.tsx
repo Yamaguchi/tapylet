@@ -1,6 +1,7 @@
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 import { Button } from "../components/ui"
+import { useNetwork } from "~/extension/hooks/useNetwork"
 import type { AppScreen } from "~/extension/types/navigation"
 
 const LEGAL_BASE_URL = "https://chaintope.github.io/tapylet"
@@ -11,6 +12,7 @@ interface WelcomeScreenProps {
 
 export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onNavigate }) => {
   const { t } = useTranslation()
+  const { network } = useNetwork()
   const [agreedToTerms, setAgreedToTerms] = useState(false)
   const [agreedToPrivacy, setAgreedToPrivacy] = useState(false)
 
@@ -44,7 +46,7 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onNavigate }) => {
           {t("welcome.subtitle")}
         </p>
         <p className="text-xs text-slate-400 bg-slate-100 px-2 py-1 rounded">
-          {t("wallet.testnet")}
+          {t(network.labelKey)}
         </p>
       </div>
 

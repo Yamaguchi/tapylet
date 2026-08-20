@@ -1,6 +1,6 @@
 # Tapylet
 
-A Chrome extension wallet for Tapyrus Testnet.
+A Chrome extension wallet for Tapyrus.
 
 ## Features
 
@@ -19,7 +19,16 @@ A Chrome extension wallet for Tapyrus Testnet.
 
 ## Supported Networks
 
+- Tapyrus API / Mainnet (NetworkId: 15215628) — default
 - Tapyrus Testnet (NetworkId: 1939510133)
+
+The network is switched at runtime from the settings screen and the choice is
+persisted. Pending transactions and issued token records are stored per
+network, so switching never mixes one chain's data into the other.
+
+An install that already holds a wallet starts on Testnet rather than the
+default: testnet was the only network the extension could reach before the
+switch existed, and that is where its data is.
 
 ## Development
 
@@ -57,7 +66,9 @@ Build artifacts will be generated in `build/chrome-mv3-prod`.
 
 ### Environment Variables
 
-Create a `.env.local` file to configure the backend connection:
+Create a `.env.local` file to point the **testnet** entry at a different
+explorer. Mainnet is not overridable: a local explorer stands in for the test
+chain, never for mainnet.
 
 ```bash
 # Explorer API endpoint (default: https://testnet-explorer.tapyrus.dev.chaintope.com/api)
@@ -68,6 +79,9 @@ PLASMO_PUBLIC_EXPLORER_URL=http://localhost:4200
 ```
 
 This is useful for local development with [tapyrus-explorer](https://github.com/chaintope/tapyrus-explorer).
+Select "Testnet" in the settings screen to use it, and add the local origin to
+`manifest.host_permissions` in `package.json` — Chrome blocks requests to hosts
+the extension has not declared.
 
 ## HD Wallet Derivation Path
 
@@ -77,6 +91,9 @@ Compliant with [TIP-0044](https://github.com/chaintope/tips/blob/main/tip-0044.m
 m/44'/1939510133'/0'/0/0
       └── NetworkId (Testnet)
 ```
+
+The path does not change when the network is switched: the same address is used
+on every Tapyrus network, so switching does not re-derive the wallet.
 
 ## License
 
