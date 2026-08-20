@@ -69,10 +69,6 @@
     "subtitle": "Tapyrus ウォレット",
     "createWallet": "新規ウォレット作成",
     "restoreWallet": "ウォレットを復元",
-    "agreeToTerms": "利用規約に同意する",
-    "agreeToPrivacy": "プライバシーポリシーに同意する",
-    "termsOfService": "利用規約",
-    "privacyPolicy": "プライバシーポリシー",
     "mustAgree": "続行するには利用規約とプライバシーポリシーに同意してください"
   },
   "createWallet": {
@@ -161,8 +157,6 @@
     "version": "バージョン",
     "network": "ネットワーク",
     "legal": "法的情報",
-    "termsOfService": "利用規約",
-    "privacyPolicy": "プライバシーポリシー",
     "security": "セキュリティ",
     "autoLock": "自動ロック",
     "autoLockDescription": "操作がないと自動的にロックします",
@@ -225,6 +219,39 @@
       "symbolTooLong": "シンボルは12文字以内にしてください",
       "amountRequired": "発行量を入力してください",
       "invalidAmount": "無効な発行量です"
+    }
+  },
+  "legal": {
+    "docs": {
+      "terms": {
+        "label": "利用規約"
+      },
+      "privacy": {
+        "label": "プライバシーポリシー"
+      }
+    },
+    "separator": "および",
+    "consent": {
+      "agree": {
+        "prefix": "",
+        "suffix": "に同意します。"
+      },
+      "acknowledge": {
+        "prefix": "",
+        "suffix": "を確認しました。"
+      }
+    },
+    "update": {
+      "title": "{{docs}}改定のお知らせ",
+      "description": "いつもご利用いただきありがとうございます。{{docs}}を新しくしました。続けてご利用いただくには、内容のご確認をお願いします。",
+      "changesTitle": "{{doc}}の変更点",
+      "agreeAction": "同意して続ける",
+      "acknowledgeAction": "確認して続ける"
+    },
+    "notice": {
+      "title": "{{date}}から{{doc}}が新しくなります",
+      "read": "新しい{{doc}}を読む",
+      "close": "お知らせを閉じる"
     }
   }
 }

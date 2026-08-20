@@ -1,9 +1,12 @@
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 import { Button } from "../components/ui"
+import {
+  consentLabelKeys,
+  legalDocUrl,
+  legalLabelKey,
+} from "~/extension/legal"
 import type { AppScreen } from "~/extension/types/navigation"
-
-const LEGAL_BASE_URL = "https://chaintope.github.io/tapylet"
 
 interface WelcomeScreenProps {
   onNavigate: (screen: AppScreen) => void
@@ -11,6 +14,9 @@ interface WelcomeScreenProps {
 
 export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onNavigate }) => {
   const { t } = useTranslation()
+  // Creating and restoring both require agreeing to the terms of service and
+  // acknowledging the privacy policy, separately. What each document asks for
+  // differs, so the wording comes from ~/extension/legal rather than from here.
   const [agreedToTerms, setAgreedToTerms] = useState(false)
   const [agreedToPrivacy, setAgreedToPrivacy] = useState(false)
 
@@ -58,15 +64,16 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onNavigate }) => {
             className="mt-0.5 w-4 h-4 text-primary-600 rounded border-slate-300 focus:ring-primary-500"
           />
           <span className="text-sm text-slate-600">
+            {t(consentLabelKeys("terms").prefix)}
             <a
-              href={`${LEGAL_BASE_URL}/terms.html`}
+              href={legalDocUrl("terms")}
               target="_blank"
               rel="noopener noreferrer"
               className="text-primary-600 hover:underline"
               onClick={(e) => e.stopPropagation()}>
-              {t("welcome.termsOfService")}
+              {t(legalLabelKey("terms"))}
             </a>
-            {t("welcome.agreeToTerms").replace(t("welcome.termsOfService"), "").trim()}
+            {t(consentLabelKeys("terms").suffix)}
           </span>
         </label>
         <label className="flex items-start gap-3 cursor-pointer">
@@ -77,15 +84,16 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onNavigate }) => {
             className="mt-0.5 w-4 h-4 text-primary-600 rounded border-slate-300 focus:ring-primary-500"
           />
           <span className="text-sm text-slate-600">
+            {t(consentLabelKeys("privacy").prefix)}
             <a
-              href={`${LEGAL_BASE_URL}/privacy.html`}
+              href={legalDocUrl("privacy")}
               target="_blank"
               rel="noopener noreferrer"
               className="text-primary-600 hover:underline"
               onClick={(e) => e.stopPropagation()}>
-              {t("welcome.privacyPolicy")}
+              {t(legalLabelKey("privacy"))}
             </a>
-            {t("welcome.agreeToPrivacy").replace(t("welcome.privacyPolicy"), "").trim()}
+            {t(consentLabelKeys("privacy").suffix)}
           </span>
         </label>
       </div>

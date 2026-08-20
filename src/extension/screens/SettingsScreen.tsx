@@ -2,9 +2,8 @@ import React, { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { Card, CardContent } from "../components/ui"
 import { settingsStore, AUTO_LOCK_OPTIONS, DEFAULT_AUTO_LOCK_MINUTES } from "~/extension/storage"
+import { legalDocUrl, legalLabelKey } from "~/extension/legal"
 import type { AppScreen } from "~/extension/types/navigation"
-
-const LEGAL_BASE_URL = "https://chaintope.github.io/tapylet"
 
 interface SettingsScreenProps {
   onNavigate: (screen: AppScreen) => void
@@ -116,12 +115,12 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
             </h2>
             <div className="space-y-2">
               <a
-                href={`${LEGAL_BASE_URL}/terms.html`}
+                href={legalDocUrl("terms")}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex justify-between items-center group">
                 <span className="text-sm text-slate-600 group-hover:text-primary-600">
-                  {t("settings.termsOfService")}
+                  {t(legalLabelKey("terms"))}
                 </span>
                 <svg
                   className="w-4 h-4 text-slate-400 group-hover:text-primary-600"
@@ -137,12 +136,12 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
                 </svg>
               </a>
               <a
-                href={`${LEGAL_BASE_URL}/privacy.html`}
+                href={legalDocUrl("privacy")}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex justify-between items-center group">
                 <span className="text-sm text-slate-600 group-hover:text-primary-600">
-                  {t("settings.privacyPolicy")}
+                  {t(legalLabelKey("privacy"))}
                 </span>
                 <svg
                   className="w-4 h-4 text-slate-400 group-hover:text-primary-600"

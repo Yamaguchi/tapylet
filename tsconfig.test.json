@@ -12,7 +12,11 @@
     "outDir": "./dist",
     "baseUrl": ".",
     "paths": {
-      "~/*": ["./src/*"]
+      "~/*": ["./src/*"],
+      // @tapylet/core publishes its subpaths through "exports", which the
+      // node10 resolution above does not read. Jest resolves them at run time;
+      // this is what lets the compiler follow the same imports.
+      "@tapylet/core/*": ["./node_modules/@tapylet/core/dist/*"]
     },
     "types": ["jest", "node"],
     "allowJs": true,
