@@ -206,6 +206,9 @@
     "nftExternalUrl": "外部URL",
     "amount": "発行量",
     "amountPlaceholder": "1000000",
+    "split": "分割数",
+    "splitPlaceholder": "1",
+    "splitHint": "発行したトークンをいくつの UTXO に分けるかを指定します（1〜100）。分けておくと、多数の相手へ配るときに送付のたびに UTXO を作り直さずに済みます。割り切れない分は最後の 1 個にまとめられます。",
     "issue": "発行する",
     "issuing": "発行中...",
     "success": "発行完了",
@@ -222,7 +225,10 @@
       "symbolRequired": "シンボルを入力してください",
       "symbolTooLong": "シンボルは12文字以内にしてください",
       "amountRequired": "発行量を入力してください",
-      "invalidAmount": "無効な発行量です"
+      "invalidAmount": "無効な発行量です",
+      "splitRequired": "分割数を入力してください",
+      "invalidSplit": "分割数は 1 から 100 までの整数で入力してください",
+      "splitExceedsAmount": "分割数は発行量以下にしてください"
     }
   },
   "legal": {

@@ -1,7 +1,7 @@
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 import { Button, Input } from "../ui"
-import { issueToken, type TokenType, type MetadataFields } from "@tapylet/core/wallet/issuance"
+import { issueToken, MAX_SPLIT, type TokenType, type MetadataFields } from "@tapylet/core/wallet/issuance"
 import { issuedTokenStore } from "~/extension/storage"
 import { walletStorage } from "~/extension/storage"
 import { useNetwork } from "~/extension/hooks/useNetwork"
@@ -42,6 +42,7 @@ export const IssueModal: React.FC<IssueModalProps> = ({
   const [issuerUrl, setIssuerUrl] = useState("")
   const [issuerEmail, setIssuerEmail] = useState("")
   const [amount, setAmount] = useState("")
+  const [split, setSplit] = useState("1")
 
   // NFT metadata state
   const [nftImage, setNftImage] = useState("")
@@ -69,6 +70,7 @@ export const IssueModal: React.FC<IssueModalProps> = ({
     setIssuerUrl("")
     setIssuerEmail("")
     setAmount("")
+    setSplit("1")
     setNftImage("")
     setNftAnimationUrl("")
     setNftExternalUrl("")
@@ -165,6 +167,23 @@ export const IssueModal: React.FC<IssueModalProps> = ({
         setError(t("issue.errors.invalidAmount"))
         return
       }
+
+      if (!split.trim()) {
+        setError(t("issue.errors.splitRequired"))
+        return
+      }
+
+      const parsedSplit = Number(split)
+      if (!Number.isInteger(parsedSplit) || parsedSplit < 1 || parsedSplit > MAX_SPLIT) {
+        setError(t("issue.errors.invalidSplit"))
+        return
+      }
+
+      // 分割数が数量を超えると、core が数量ぶんの出力しか作らず指定と食い違う。
+      if (parsedSplit > parsedAmount) {
+        setError(t("issue.errors.splitExceedsAmount"))
+        return
+      }
     }
 
     setStep("confirm")
@@ -186,6 +205,7 @@ export const IssueModal: React.FC<IssueModalProps> = ({
       const result = await issueToken({
         tokenType,
         amount: parsedAmount,
+        split: tokenType === "nft" ? 1 : Number(split),
         metadata,
         mnemonic: walletData.mnemonic,
         fromAddress: address,
@@ -279,6 +299,7 @@ export const IssueModal: React.FC<IssueModalProps> = ({
                           if (newType === "nft") {
                             setAmount("1")
                             setDecimals("0")
+                            setSplit("1")
                           }
                         }}
                         className="mt-0.5 mr-3"
@@ -332,6 +353,21 @@ export const IssueModal: React.FC<IssueModalProps> = ({
                       type="text"
                       inputMode="numeric"
                     />
+                  </div>
+                )}
+                {tokenType !== "nft" && (
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-1.5">
+                      {t("issue.split")}
+                    </label>
+                    <Input
+                      value={split}
+                      onChange={(e) => setSplit(e.target.value.replace(/[^0-9]/g, ""))}
+                      placeholder={t("issue.splitPlaceholder")}
+                      type="text"
+                      inputMode="numeric"
+                    />
+                    <p className="mt-1 text-xs text-slate-500">{t("issue.splitHint")}</p>
                   </div>
                 )}
                 <div>
@@ -470,6 +506,14 @@ export const IssueModal: React.FC<IssueModalProps> = ({
                     {tokenType === "nft" ? "1" : parseInt(amount, 10).toLocaleString()} {symbol.toUpperCase()}
                   </p>
                 </div>
+                {tokenType !== "nft" && Number(split) > 1 && (
+                  <div className="p-3 bg-slate-50 rounded-lg">
+                    <p className="text-xs text-slate-500">{t("issue.split")}</p>
+                    <p className="text-sm font-medium text-slate-800">
+                      {Number(split).toLocaleString()}
+                    </p>
+                  </div>
+                )}
                 {tokenType !== "nft" && (
                   <div className="p-3 bg-slate-50 rounded-lg">
                     <p className="text-xs text-slate-500">{t("issue.decimals")}</p>
