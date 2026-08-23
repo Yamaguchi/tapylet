@@ -2,7 +2,8 @@ import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 import { Button, Input } from "../ui"
 import { validateAddress } from "@tapylet/core/wallet"
-import { createAndSignTransaction, createAndSignAssetTransaction } from "@tapylet/core/wallet/transaction"
+import { createAndSignTransaction, createAndSignAssetTransaction, MAX_SPLIT } from "@tapylet/core/wallet/transaction"
+import { DUST_THRESHOLD, DEFAULT_FEE_RATE, estimateTxSize } from "@tapylet/core/constants/transaction"
 import { parseTpc, formatTpc, formatTokenAmount, formatColorId, getExplorerColorUrl, TPC_COLOR_ID, type AssetBalance, type BalanceDetails, type Metadata } from "@tapylet/core/api"
 import { walletStorage } from "~/extension/storage"
 import { isValidAmount, parseAndValidateAmount, MAX_AMOUNT, MAX_COLORED_AMOUNT } from "@tapylet/core/utils/validation"
@@ -33,6 +34,7 @@ export const SendModal: React.FC<SendModalProps> = ({
   const [selectedColorId, setSelectedColorId] = useState<string>(TPC_COLOR_ID)
   const [toAddress, setToAddress] = useState("")
   const [amount, setAmount] = useState("")
+  const [split, setSplit] = useState("1")
   const [error, setError] = useState<string | null>(null)
   const [txid, setTxid] = useState<string | null>(null)
 
@@ -40,13 +42,17 @@ export const SendModal: React.FC<SendModalProps> = ({
   const selectedAsset = assets.find(a => a.colorId === selectedColorId)
   const selectedMeta = tokenMetadata.get(selectedColorId)
   const selectedDecimals = selectedMeta?.decimals
+  // NFTs are indivisible, so the split field is hidden and 1 is always sent.
+  const isNft = selectedMeta?.tokenType === "nft"
   const availableBalance = isTpc ? tpcBalance.total : (selectedAsset?.total ?? 0)
+  const sendSplit = isNft ? 1 : Number(split)
 
   const resetState = () => {
     setStep("input")
     setSelectedColorId(TPC_COLOR_ID)
     setToAddress("")
     setAmount("")
+    setSplit("1")
     setError(null)
     setTxid(null)
   }
@@ -103,9 +109,57 @@ export const SendModal: React.FC<SendModalProps> = ({
       return
     }
 
+    // dust を下回る TPC 出力は中継されない。
+    if (isTpc && parsedAmount < DUST_THRESHOLD) {
+      setError(t("send.errors.amountBelowDust", { amount: formatTpc(DUST_THRESHOLD) }))
+      return
+    }
+
     if (parsedAmount > availableBalance) {
       setError(t("send.errors.insufficientBalance"))
       return
+    }
+
+    let parsedSplit = 1
+    if (!isNft) {
+      if (!split) {
+        setError(t("send.errors.splitRequired"))
+        return
+      }
+
+      parsedSplit = Number(split)
+      if (!Number.isInteger(parsedSplit) || parsedSplit < 1 || parsedSplit > MAX_SPLIT) {
+        setError(t("send.errors.invalidSplit", { max: MAX_SPLIT }))
+        return
+      }
+
+      if (isTpc) {
+        if (parsedSplit > 1 && Math.floor(parsedAmount / parsedSplit) < DUST_THRESHOLD) {
+          setError(t("send.errors.splitBelowDust", { amount: formatTpc(DUST_THRESHOLD) }))
+          return
+        }
+      } else if (parsedSplit > parsedAmount) {
+        // 分割数が数量を超えると、core が数量ぶんの出力しか作らず指定と食い違う。
+        setError(t("send.errors.splitExceedsAmount"))
+        return
+      }
+    }
+
+    // 分割で出力が増えたぶん手数料も増える。core が組みうる最小構成で見積もり、
+    // 明らかに足りない指定を確認画面へ進ませない。実際の入力が増えれば手数料は
+    // これより大きくなるため、見積もりが過大になって誤って弾くことはない。
+    if (isTpc) {
+      const minFee = Math.ceil(estimateTxSize(1, parsedSplit + 1) * DEFAULT_FEE_RATE)
+      if (parsedAmount + minFee > availableBalance) {
+        setError(t("send.errors.insufficientWithFee"))
+        return
+      }
+    } else {
+      const minFee = Math.ceil(estimateTxSize(2, 1, parsedSplit) * DEFAULT_FEE_RATE)
+      if (minFee > tpcBalance.total) {
+        setError(t("send.errors.insufficientTpcForFee"))
+        return
+      }
     }
 
     setStep("confirm")
@@ -130,6 +184,7 @@ export const SendModal: React.FC<SendModalProps> = ({
           fromAddress: address,
           toAddress: toAddress.trim(),
           amount: sendAmount,
+          split: sendSplit,
           mnemonic: walletData.mnemonic,
         })
       } else {
@@ -138,6 +193,7 @@ export const SendModal: React.FC<SendModalProps> = ({
           fromAddress: address,
           toAddress: toAddress.trim(),
           amount: sendAmount,
+          split: sendSplit,
           colorId: selectedColorId,
           mnemonic: walletData.mnemonic,
         })
@@ -199,6 +255,7 @@ export const SendModal: React.FC<SendModalProps> = ({
                     onChange={(e) => {
                       setSelectedColorId(e.target.value)
                       setAmount("")
+                      setSplit("1")
                     }}
                     className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent">
                     <option value={TPC_COLOR_ID}>TPC</option>
@@ -248,6 +305,26 @@ export const SendModal: React.FC<SendModalProps> = ({
                   </p>
                 ) : null}
               </div>
+
+              {!isNft && (
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">
+                    {t("send.split")}
+                  </label>
+                  <Input
+                    value={split}
+                    onChange={(e) =>
+                      setSplit(e.target.value.replace(/[^0-9]/g, "").replace(/^0+(?=\d)/, ""))
+                    }
+                    placeholder={t("send.splitPlaceholder")}
+                    type="text"
+                    inputMode="numeric"
+                  />
+                  <p className="text-xs text-slate-500 mt-1">
+                    {t("send.splitHint", { max: MAX_SPLIT })}
+                  </p>
+                </div>
+              )}
             </div>
 
             {error && (
@@ -298,6 +375,14 @@ export const SendModal: React.FC<SendModalProps> = ({
                   {isTpc ? `${amount} TPC` : parseFloat(amount).toLocaleString()}
                 </p>
               </div>
+              {sendSplit > 1 && (
+                <div>
+                  <p className="text-xs text-slate-500">{t("send.split")}</p>
+                  <p className="text-sm font-medium text-slate-800">
+                    {Number(split).toLocaleString()}
+                  </p>
+                </div>
+              )}
             </div>
 
             <p className="text-sm text-slate-600 mb-6 text-center">

@@ -37,6 +37,9 @@
     "assetAmount": "数量",
     "available": "利用可能: {{amount}} TPC",
     "availableAsset": "利用可能: {{amount}}",
+    "split": "分割数",
+    "splitPlaceholder": "1",
+    "splitHint": "送金先へいくつの UTXO に分けて渡すかを指定します（1〜{{max}}）。分けておくと、受け取った側が多数の相手へ配るときに送付のたびに UTXO を作り直さずに済みます。割り切れない分は最後の 1 個にまとめられます。分割数を増やすと出力が増えるため、手数料も増えます。",
     "confirmTransaction": "この取引を確認してください",
     "to": "送金先",
     "sending": "送金中...",
@@ -50,7 +53,14 @@
       "enterAmount": "金額を入力してください",
       "invalidAmount": "無効な金額です",
       "amountGreaterThanZero": "金額は0より大きい必要があります",
-      "insufficientBalance": "残高が不足しています"
+      "insufficientBalance": "残高が不足しています",
+      "amountBelowDust": "金額は {{amount}} TPC 以上にしてください",
+      "insufficientWithFee": "手数料を含めると残高が足りません。金額か分割数を減らしてください",
+      "insufficientTpcForFee": "手数料に使う TPC が足りません。分割数を減らすか TPC を用意してください",
+      "splitRequired": "分割数を入力してください",
+      "invalidSplit": "分割数は 1 から {{max}} までの整数で入力してください",
+      "splitExceedsAmount": "分割数は数量以下にしてください",
+      "splitBelowDust": "分割数を減らしてください。1 個あたりが {{amount}} TPC を下回ります"
     }
   },
   "receive": {

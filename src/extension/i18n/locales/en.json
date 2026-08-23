@@ -37,6 +37,9 @@
     "assetAmount": "Amount",
     "available": "Available: {{amount}} TPC",
     "availableAsset": "Available: {{amount}}",
+    "split": "Split",
+    "splitPlaceholder": "1",
+    "splitHint": "Number of UTXOs to split the payment into (1-{{max}}). Splitting up front lets the recipient hand out to many people without rebuilding UTXOs on every transfer. Any remainder is added to the last output. A larger split means more outputs and a larger fee.",
     "confirmTransaction": "Please confirm this transaction",
     "to": "To",
     "sending": "Sending transaction...",
@@ -50,7 +53,14 @@
       "enterAmount": "Please enter an amount",
       "invalidAmount": "Invalid amount",
       "amountGreaterThanZero": "Amount must be greater than 0",
-      "insufficientBalance": "Insufficient balance"
+      "insufficientBalance": "Insufficient balance",
+      "amountBelowDust": "Amount must be at least {{amount}} TPC",
+      "insufficientWithFee": "The balance does not cover the amount plus the fee. Lower the amount or the split count",
+      "insufficientTpcForFee": "Not enough TPC to pay the fee. Lower the split count or add TPC",
+      "splitRequired": "Please enter a split count",
+      "invalidSplit": "Split must be an integer between 1 and {{max}}",
+      "splitExceedsAmount": "Split must not exceed the amount",
+      "splitBelowDust": "Lower the split count. Each output would fall below {{amount}} TPC"
     }
   },
   "receive": {
