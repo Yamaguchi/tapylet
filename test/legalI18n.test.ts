@@ -64,6 +64,7 @@ describe.each(Object.keys(LANGUAGES) as (keyof typeof LANGUAGES)[])(
         "legal.separator",
         "legal.update.agreeAction",
         "legal.update.acknowledgeAction",
+        "legal.notice.changes",
         "legal.notice.close",
       ]) {
         expect(t(language, key)).not.toBe(key)

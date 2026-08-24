@@ -250,6 +250,7 @@
     },
     "notice": {
       "title": "The {{doc}} changes on {{date}}",
+      "changes": "Show what changed",
       "read": "Read the new {{doc}}",
       "close": "Dismiss"
     }

@@ -90,13 +90,23 @@ export const LegalUpdateNotice: React.FC = () => {
               </button>
             </div>
             {changes.length > 0 && (
-              <ul className="mt-1 list-disc space-y-0.5 pl-5">
-                {changes.map((change, index) => (
-                  // The list has no identity of its own; two entries may read
-                  // the same, so its position is the only stable key.
-                  <li key={index}>{change}</li>
-                ))}
-              </ul>
+              // Collapsed until asked for. The list comes off the network and
+              // the banner sits above every screen, so a list drawn open would
+              // let the manifest decide how much of the wallet stays visible —
+              // one banner per document, and the two together can be taller
+              // than the panel.
+              <details className="mt-1">
+                <summary className="cursor-pointer underline">
+                  {t("legal.notice.changes")}
+                </summary>
+                <ul className="mt-1 list-disc space-y-0.5 pl-5">
+                  {changes.map((change, index) => (
+                    // The list has no identity of its own; two entries may read
+                    // the same, so its position is the only stable key.
+                    <li key={index}>{change}</li>
+                  ))}
+                </ul>
+              </details>
             )}
             <a
               href={legalDocUrl(id, upcoming.version)}
