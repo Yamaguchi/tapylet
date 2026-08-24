@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next"
 import { Button, Card, CardContent } from "../components/ui"
 import { AddressDisplay, ReceiveModal, SendModal, PendingTransactions, AssetDetailModal, IssueModal } from "../components/wallet"
 import { walletStorage } from "~/extension/storage"
-import { pendingTxStore, type PendingTransaction } from "~/extension/storage"
+import { pendingTxStore, pendingTxStoreFor, type PendingTransaction } from "~/extension/storage"
 import { issuedTokenStore } from "~/extension/storage"
 import { getAllBalances, formatTpc, formatTokenAmount, getTransactionInfo, formatColorId, getExplorerColorUrl, getTokenMetadataBatch, Metadata, type AllBalances } from "@tapylet/core/api"
 import { sanitizeImageUrl } from "@tapylet/core/utils/sanitize"
@@ -40,23 +40,28 @@ export const MainWalletScreen: React.FC<MainWalletScreenProps> = ({
 
   const refreshData = useCallback(async () => {
     // A refresh started before a network switch must not finish after it: its
-    // results describe the previous chain, and pendingTxStore writes would
-    // land in the new network's namespace.
+    // results describe the previous chain, and what it puts on screen belongs
+    // to a network the user has left.
     const startedOn = getNetwork().id
     const isStale = () => getNetwork().id !== startedOn
+    // Reads and writes stay on the network the refresh started on. A store
+    // operation reads the list and writes it back, so a switch landing inside
+    // one would otherwise file this network's pending transactions under the
+    // other (see ~/extension/storage).
+    const pending = pendingTxStoreFor(startedOn)
 
     // Check and remove confirmed transactions
-    const txs = await pendingTxStore.getAll()
+    const txs = await pending.getAll()
     for (const tx of txs) {
       if (isStale()) return
       try {
         const info = await getTransactionInfo(tx.txid)
         // Checked again after the request: the switch can land while it is in
-        // flight, and the removal below would then write to the new network's
-        // namespace.
+        // flight, and a confirmation read from the previous chain says nothing
+        // about the one now selected.
         if (isStale()) return
         if (info.status.confirmed) {
-          await pendingTxStore.remove(tx.txid)
+          await pending.remove(tx.txid)
         }
       } catch {
         // Transaction not found or error, keep in pending
@@ -69,7 +74,7 @@ export const MainWalletScreen: React.FC<MainWalletScreenProps> = ({
         console.error("Failed to fetch balance:", err)
         return null
       }),
-      pendingTxStore.getAll(),
+      pending.getAll(),
     ])
 
     if (isStale()) return

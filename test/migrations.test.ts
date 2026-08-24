@@ -16,8 +16,8 @@ import type { KeyValueStore } from "@tapylet/core/storage/types"
 
 import { networkKeyPrefix } from "~/extension/storage/adapters/prefixed"
 import {
-  adoptLegacyNetworkChoice,
   migrateLegacyNetworkKeys,
+  settleInitialNetworkChoice,
 } from "~/extension/storage/migrations"
 import { SELECTED_NETWORK_KEY } from "~/extension/storage/networkStore"
 
@@ -180,9 +180,10 @@ describe("migrateLegacyNetworkKeys", () => {
   })
 })
 
-// Which network an existing install lands on. Getting this wrong shows a user
-// with a wallet an empty balance on a network they never chose.
-describe("adoptLegacyNetworkChoice", () => {
+// Which network an install lands on. Getting this wrong shows a user with a
+// wallet an empty balance on a network they never chose — and the wrong answer
+// is not visible at the time it is written, only on the next start.
+describe("settleInitialNetworkChoice", () => {
   let storage: FakeStore
   const hasWallet = () => Promise.resolve(true)
   const noWallet = () => Promise.resolve(false)
@@ -191,31 +192,42 @@ describe("adoptLegacyNetworkChoice", () => {
     storage = new FakeStore()
   })
 
-  it("keeps an existing wallet on testnet", async () => {
-    await adoptLegacyNetworkChoice(storage, hasWallet)
+  // A wallet at this point can only have been created by a build that had no
+  // network switch, so its data is on testnet.
+  it("keeps an install that already has a wallet on testnet", async () => {
+    await settleInitialNetworkChoice(storage, hasWallet)
 
     expect(await storage.get(SELECTED_NETWORK_KEY)).toBe("testnet")
   })
 
-  // A fresh install belongs on the default, which is mainnet.
-  it("chooses nothing when there is no wallet", async () => {
-    await adoptLegacyNetworkChoice(storage, noWallet)
+  it("records mainnet for a fresh install rather than leaving it unset", async () => {
+    await settleInitialNetworkChoice(storage, noWallet)
 
-    expect(storage.values.has(SELECTED_NETWORK_KEY)).toBe(false)
+    expect(await storage.get(SELECTED_NETWORK_KEY)).toBe("mainnet")
+  })
+
+  // The whole reason the choice is written on the first run: a wallet created
+  // afterwards, on mainnet, must not be mistaken on the next start for one
+  // that predates the switch.
+  it("does not move a wallet created after the first run to testnet", async () => {
+    await settleInitialNetworkChoice(storage, noWallet)
+    await settleInitialNetworkChoice(storage, hasWallet)
+
+    expect(await storage.get(SELECTED_NETWORK_KEY)).toBe("mainnet")
   })
 
   it("leaves a choice the user has already made", async () => {
     await storage.set(SELECTED_NETWORK_KEY, "mainnet")
 
-    await adoptLegacyNetworkChoice(storage, hasWallet)
+    await settleInitialNetworkChoice(storage, hasWallet)
 
     expect(await storage.get(SELECTED_NETWORK_KEY)).toBe("mainnet")
   })
 
   it("is idempotent: a second run changes nothing", async () => {
-    await adoptLegacyNetworkChoice(storage, hasWallet)
+    await settleInitialNetworkChoice(storage, hasWallet)
     const afterFirst = new Map(storage.values)
-    await adoptLegacyNetworkChoice(storage, hasWallet)
+    await settleInitialNetworkChoice(storage, hasWallet)
 
     expect(storage.values).toEqual(afterFirst)
   })

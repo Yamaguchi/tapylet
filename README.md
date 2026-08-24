@@ -26,9 +26,11 @@ The network is switched at runtime from the settings screen and the choice is
 persisted. Pending transactions and issued token records are stored per
 network, so switching never mixes one chain's data into the other.
 
-An install that already holds a wallet starts on Testnet rather than the
-default: testnet was the only network the extension could reach before the
-switch existed, and that is where its data is.
+An install that already holds a wallet the first time this build runs starts on
+Testnet rather than the default: testnet was the only network the extension
+could reach before the switch existed, and that is where its data is. The
+choice is recorded on that first run, so a wallet created later — on the
+default — is not mistaken for one of those installs.
 
 ## Development
 

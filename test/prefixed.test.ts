@@ -81,6 +81,19 @@ describe("PrefixedKeyValueStore", () => {
     expect([...inner.values.keys()].sort()).toEqual(["net_1_a", "net_2_a"])
   })
 
+  // What a caller that must not follow a switch relies on (a refresh already
+  // in progress: see ~/extension/storage pendingTxStoreFor). A store built
+  // over a constant keeps writing to the namespace it was built for.
+  it("stays on one namespace when its prefix does not move", async () => {
+    const pinned = new PrefixedKeyValueStore(inner, () => "net_1_")
+
+    await pinned.set("a", 1)
+    prefix = "net_2_"
+    await pinned.set("b", 2)
+
+    expect([...inner.values.keys()].sort()).toEqual(["net_1_a", "net_1_b"])
+  })
+
   it("pins a watcher to the prefix in effect when it subscribed", () => {
     store.watch("a", () => {})
     prefix = "net_2_"
