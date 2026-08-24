@@ -2,11 +2,43 @@
   "docs": {
     "terms": {
       "version": "1.1",
-      "changes": {}
+      "changes": {},
+      "upcoming": {
+        "version": "2.0",
+        "effectiveFrom": "2026-10-01",
+        "changes": {
+          "ja": [
+            "メインネット（Tapyrus APIネットワーク）の利用条件を追加しました。",
+            "禁止される利用を法令に沿って整理しました。",
+            "免責事項と、未成年の方の利用に関する記載を改めました。"
+          ],
+          "en": [
+            "Added terms for using the mainnet (the Tapyrus API network).",
+            "Reorganized the prohibited uses in line with the law.",
+            "Revised the disclaimers and the terms on use by minors."
+          ]
+        }
+      }
     },
     "privacy": {
       "version": "1.0",
-      "changes": {}
+      "changes": {},
+      "upcoming": {
+        "version": "2.0",
+        "effectiveFrom": "2026-10-01",
+        "changes": {
+          "ja": [
+            "外部サービスとの通信に伴い、IPアドレス等の接続情報がアクセスログに記録されることを明記しました。",
+            "接続先のネットワーク（テストネットまたはメインネット）に応じた記載に改めました。",
+            "未成年の方の利用に関する記載を改めました。"
+          ],
+          "en": [
+            "Stated that connection details such as IP addresses are recorded in server access logs.",
+            "Revised the text to reflect the connected network (testnet or mainnet).",
+            "Revised the section on use by minors."
+          ]
+        }
+      }
     }
   }
 }
