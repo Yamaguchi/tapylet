@@ -1,5 +1,8 @@
-// One-time moves of already-stored data, run once at startup before any screen
-// reads it (see ~/extension/hooks/useNetwork).
+// One-time moves of already-stored data, and the one-time decision of which
+// network this install operates on. Both run at startup before any screen
+// reads storage (see ~/extension/hooks/useNetwork), which is what lets the
+// decision below tell an install that predates the network switch from a
+// fresh one.
 //
 // Adding a network switch changed where chain data lives: pending transactions
 // and issued token records are now namespaced per network (see
@@ -14,7 +17,11 @@ import type { KeyValueStore } from "@tapylet/core/storage/types"
 import { networkKeyPrefix } from "./adapters/prefixed"
 import { SELECTED_NETWORK_KEY } from "./networkStore"
 
-import { NETWORKS, type NetworkKey } from "~/extension/constants/network"
+import {
+  DEFAULT_NETWORK,
+  NETWORKS,
+  type NetworkKey,
+} from "~/extension/constants/network"
 
 // The keys @tapylet/core's PendingTxStore and IssuedTokenStore write. Spelled
 // out here rather than imported because these are the *old* names as they exist
@@ -50,23 +57,29 @@ export const migrateLegacyNetworkKeys = async (
 }
 
 /**
- * Keeps an install that predates the switch on the network it was using.
+ * Settles which network this install operates on, once.
  *
- * The default for a fresh install is mainnet. Applied to an install that
- * already has a wallet, that default would move the user to a network where
- * the same address holds nothing: the balance reads zero, and the pending
- * transactions and issued tokens moved above are nowhere on screen. Nothing is
- * lost — they are stored under testnet — but there is no sign of where they
- * went.
+ * The choice is written down on the very first run instead of being left to
+ * the default, because the answer depends on something that stops being true
+ * later: a wallet present at this point can only have been created by a build
+ * that had no network switch, and therefore holds testnet data. This runs
+ * before any screen is shown, so a fresh install cannot yet have a wallet — it
+ * is recorded as mainnet and stays there once the user creates one.
  *
- * Only ever writes a choice that is not there yet, so a user who has since
- * selected mainnet keeps that selection.
+ * Leaving an install that predates the switch on the default would put the
+ * user on a network where the same address holds nothing: the balance reads
+ * zero, and the pending transactions and issued tokens moved above are nowhere
+ * on screen. Nothing is lost — they are stored under testnet — but there is no
+ * sign of where they went.
+ *
+ * Only ever writes when nothing is stored, so a selection made in the settings
+ * screen is never overwritten.
  */
-export const adoptLegacyNetworkChoice = async (
+export const settleInitialNetworkChoice = async (
   storage: KeyValueStore,
   walletExists: () => Promise<boolean>,
 ): Promise<void> => {
   if ((await storage.get(SELECTED_NETWORK_KEY)) !== null) return
-  if (!(await walletExists())) return
-  await storage.set(SELECTED_NETWORK_KEY, LEGACY_NETWORK)
+  const key = (await walletExists()) ? LEGACY_NETWORK : DEFAULT_NETWORK
+  await storage.set(SELECTED_NETWORK_KEY, key)
 }
