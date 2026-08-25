@@ -15,6 +15,9 @@ import {
   type LegalManifest,
 } from "~/extension/legal"
 import { fetchLegalManifest } from "~/extension/legalManifest"
+import { LegalManifestStore } from "~/extension/storage/legalManifestStore"
+
+import type { KeyValueStore } from "@tapylet/core/storage/types"
 
 const manifest = (docs: unknown) => ({ docs })
 
@@ -322,5 +325,56 @@ describe("fetchLegalManifest", () => {
       .mockRejectedValue(new Error("offline")) as unknown as typeof fetch
 
     expect(await fetchLegalManifest()).toBeNull()
+  })
+})
+
+// What is fetched is put away for the next launch and read back there. The
+// version in effect is decided from what comes out of the store, never from
+// what went in, so a manifest that does not survive the round trip decides
+// nothing: no announcement, no re-consent, and nothing on screen to show it.
+describe("LegalManifestStore", () => {
+  class FakeStore implements KeyValueStore {
+    values = new Map<string, unknown>()
+
+    async get<T>(key: string): Promise<T | null> {
+      const value = this.values.get(key)
+      // The real store puts the value through JSON on the way in and out.
+      return value === undefined ? null : (JSON.parse(JSON.stringify(value)) as T)
+    }
+    async set<T>(key: string, value: T): Promise<void> {
+      this.values.set(key, value)
+    }
+    async remove(key: string): Promise<void> {
+      this.values.delete(key)
+    }
+    watch(_key: string, _callback: (newValue: unknown) => void): () => void {
+      return () => {}
+    }
+  }
+
+  const published = manifest({
+    terms: {
+      version: "2.0",
+      changes: { ja: ["変えた点"] },
+      upcoming: {
+        version: "3.0",
+        effectiveFrom: "2026-12-01",
+        changes: { ja: ["次に変わる点"] },
+      },
+    },
+    privacy: { version: "1.0", changes: {} },
+  })
+
+  it("reads back everything it was given", async () => {
+    const store = new LegalManifestStore(new FakeStore())
+    const parsed = parseLegalManifest(published)
+
+    await store.set(parsed as LegalManifest)
+
+    expect(await store.get()).toEqual(parsed)
+  })
+
+  it("has nothing on record before anything is stored", async () => {
+    expect(await new LegalManifestStore(new FakeStore()).get()).toBeNull()
   })
 })

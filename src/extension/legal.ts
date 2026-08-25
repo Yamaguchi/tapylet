@@ -318,6 +318,36 @@ export const parseLegalManifest = (value: unknown): LegalManifest | null => {
   return parsed
 }
 
+/**
+ * A manifest written back out the way it is published.
+ *
+ * Anything kept for the next launch goes through this first. A stored manifest
+ * is read with parseLegalManifest, which takes a version as the string it is
+ * written as ('2.0') — handing it the parsed form back would drop every entry,
+ * and the manifest would quietly stop deciding anything at all.
+ */
+export const serializeLegalManifest = (manifest: LegalManifest): unknown => {
+  const docs: Record<string, unknown> = {}
+  for (const id of LEGAL_DOC_IDS) {
+    const doc = manifest.docs[id]
+    if (!doc) continue
+    docs[id] = {
+      version: formatVersion(doc.version),
+      changes: doc.changes,
+      ...(doc.upcoming
+        ? {
+            upcoming: {
+              version: formatVersion(doc.upcoming.version),
+              effectiveFrom: doc.upcoming.effectiveFrom,
+              changes: doc.upcoming.changes,
+            },
+          }
+        : {}),
+    }
+  }
+  return { docs }
+}
+
 /** Compares two versions the way a reader would: major first, then minor. */
 const isNewer = (a: LegalVersion, b: LegalVersion): boolean =>
   a.major !== b.major ? a.major > b.major : a.minor > b.minor

@@ -8,7 +8,11 @@
 
 import type { KeyValueStore } from "@tapylet/core/storage/types"
 
-import { parseLegalManifest, type LegalManifest } from "~/extension/legal"
+import {
+  parseLegalManifest,
+  serializeLegalManifest,
+  type LegalManifest,
+} from "~/extension/legal"
 
 const CACHED_MANIFEST_KEY = "legal_manifest"
 
@@ -32,8 +36,11 @@ export class LegalManifestStore {
    * published answer, so a genuine rollback is not fought here. What a
    * rollback cannot do is take a document below what this build shipped with —
    * that floor is applied when the manifest is merged, not when it is stored.
+   *
+   * Written in the published shape, because that is what `get` reads it back
+   * as (see serializeLegalManifest).
    */
   async set(manifest: LegalManifest): Promise<void> {
-    await this.storage.set(CACHED_MANIFEST_KEY, manifest)
+    await this.storage.set(CACHED_MANIFEST_KEY, serializeLegalManifest(manifest))
   }
 }
