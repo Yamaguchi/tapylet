@@ -6,6 +6,7 @@ import {
   legalDocUrl,
   legalLabelKey,
 } from "~/extension/legal"
+import { useNetwork } from "~/extension/hooks/useNetwork"
 import type { AppScreen } from "~/extension/types/navigation"
 
 interface WelcomeScreenProps {
@@ -14,6 +15,7 @@ interface WelcomeScreenProps {
 
 export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onNavigate }) => {
   const { t } = useTranslation()
+  const { network } = useNetwork()
   // Creating and restoring both require agreeing to the terms of service and
   // acknowledging the privacy policy, separately. What each document asks for
   // differs, so the wording comes from ~/extension/legal rather than from here.
@@ -50,7 +52,7 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onNavigate }) => {
           {t("welcome.subtitle")}
         </p>
         <p className="text-xs text-slate-400 bg-slate-100 px-2 py-1 rounded">
-          {t("wallet.testnet")}
+          {t(network.labelKey)}
         </p>
       </div>
 

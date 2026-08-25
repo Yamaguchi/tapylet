@@ -13,15 +13,18 @@
     "copied": "Copied!",
     "decimalHint": "Up to {{decimals}} decimal places"
   },
+  "network": {
+    "mainnet": "Mainnet",
+    "testnet": "Testnet"
+  },
   "wallet": {
     "title": "Tapylet",
-    "testnet": "Testnet",
     "totalBalance": "Total Balance",
     "confirmed": "Confirmed",
     "unconfirmed": "Unconfirmed",
     "yourAddress": "Your Address",
     "assets": "Assets",
-    "connectedTo": "Connected to Tapyrus Testnet",
+    "connectedTo": "Connected to Tapyrus {{network}}",
     "failedToLoad": "Failed to load"
   },
   "send": {
@@ -156,6 +159,7 @@
     "about": "About",
     "version": "Version",
     "network": "Network",
+    "networkDescription": "Choose which Tapyrus network to connect to",
     "legal": "Legal",
     "security": "Security",
     "autoLock": "Auto-lock",

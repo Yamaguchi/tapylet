@@ -2,7 +2,7 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 import { QRCodeSVG } from "qrcode.react"
 import { buildAddressUri } from "@tapylet/core/utils/uri"
-import { NETWORK_ID } from "~/extension/constants/network"
+import { useNetwork } from "~/extension/hooks/useNetwork"
 import { AddressDisplay } from "./AddressDisplay"
 import { Button } from "../ui"
 
@@ -14,6 +14,7 @@ interface ReceiveModalProps {
 
 export const ReceiveModal: React.FC<ReceiveModalProps> = ({ address, isOpen, onClose }) => {
   const { t } = useTranslation()
+  const { network } = useNetwork()
 
   if (!isOpen) return null
 
@@ -47,7 +48,7 @@ export const ReceiveModal: React.FC<ReceiveModalProps> = ({ address, isOpen, onC
                 the address belongs to; the address below stays raw so it
                 remains copy-pastable. */}
             <QRCodeSVG
-              value={buildAddressUri(address, NETWORK_ID)}
+              value={buildAddressUri(address, network.id)}
               size={180}
               level="M"
               includeMargin={false}
