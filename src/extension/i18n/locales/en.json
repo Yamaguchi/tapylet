@@ -72,10 +72,6 @@
     "subtitle": "Your Tapyrus wallet",
     "createWallet": "Create New Wallet",
     "restoreWallet": "Restore Wallet",
-    "agreeToTerms": "I agree to the Terms of Service",
-    "agreeToPrivacy": "I agree to the Privacy Policy",
-    "termsOfService": "Terms of Service",
-    "privacyPolicy": "Privacy Policy",
     "mustAgree": "Please agree to the Terms of Service and Privacy Policy to continue"
   },
   "createWallet": {
@@ -165,8 +161,6 @@
     "network": "Network",
     "networkDescription": "Choose which Tapyrus network to connect to",
     "legal": "Legal",
-    "termsOfService": "Terms of Service",
-    "privacyPolicy": "Privacy Policy",
     "security": "Security",
     "autoLock": "Auto-lock",
     "autoLockDescription": "Automatically lock after inactivity",
@@ -229,6 +223,40 @@
       "symbolTooLong": "Symbol must be 12 characters or less",
       "amountRequired": "Please enter an amount",
       "invalidAmount": "Invalid amount"
+    }
+  },
+  "legal": {
+    "docs": {
+      "terms": {
+        "label": "Terms of Service"
+      },
+      "privacy": {
+        "label": "Privacy Policy"
+      }
+    },
+    "separator": " and the ",
+    "consent": {
+      "agree": {
+        "prefix": "I agree to the ",
+        "suffix": "."
+      },
+      "acknowledge": {
+        "prefix": "I have read the ",
+        "suffix": "."
+      }
+    },
+    "update": {
+      "title": "Update to the {{docs}}",
+      "description": "Thank you for using Tapylet. We have updated the {{docs}}. Please review the changes to keep using the wallet.",
+      "changesTitle": "What changed in the {{doc}}",
+      "agreeAction": "Agree and continue",
+      "acknowledgeAction": "Acknowledge and continue"
+    },
+    "notice": {
+      "title": "The {{doc}} changes on {{date}}",
+      "changes": "Show what changed",
+      "read": "Read the new {{doc}}",
+      "close": "Dismiss"
     }
   }
 }

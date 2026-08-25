@@ -8,6 +8,9 @@ import { PendingTxStore } from "@tapylet/core/storage/pendingTxStore"
 import { SettingsStore } from "@tapylet/core/storage/settingsStore"
 import { PlasmoKeyValueStore, PlasmoSecureStore } from "./adapters/plasmo"
 import { networkKeyPrefix, PrefixedKeyValueStore } from "./adapters/prefixed"
+import { adoptLegacyConsent, ConsentStore } from "./consentStore"
+import { LegalManifestStore } from "./legalManifestStore"
+import { LegalNoticeStore } from "./legalNoticeStore"
 import {
   migrateLegacyNetworkKeys,
   settleInitialNetworkChoice,
@@ -35,6 +38,14 @@ export const networkStore = new NetworkStore(plainStore)
 export const issuedTokenStore = new IssuedTokenStore(networkScopedStore)
 export const pendingTxStore = new PendingTxStore(networkScopedStore)
 
+// What the user agreed to, which announcements they have dismissed, and the
+// manifest that says which version is in effect. All three describe the user or
+// the documents rather than the chain, so they sit in the plain store: a
+// consent given on one network is the same consent on the other.
+export const consentStore = new ConsentStore(plainStore)
+export const legalNoticeStore = new LegalNoticeStore(plainStore)
+export const legalManifestStore = new LegalManifestStore(plainStore)
+
 /**
  * A pending transaction store nailed to one network, for a sequence of calls
  * that must all reach the same namespace however the selection moves while it
@@ -49,14 +60,19 @@ export const pendingTxStoreFor = (networkId: number): PendingTxStore =>
 
 /**
  * Brings already-stored data up to date with the current layout. Awaited before
- * the network choice is read, and so before any screen is shown (see
- * ~/extension/hooks/useNetwork).
+ * the network choice and the consent record are read, and so before any screen
+ * is shown (see ~/extension/hooks/useNetwork).
+ *
+ * The consent step is what puts an existing install's consent on record;
+ * reading the record before it ran would ask those users to agree to something
+ * that has not changed.
  */
 export const runStorageMigrations = async (): Promise<void> => {
   await migrateLegacyNetworkKeys(plainStore)
   await settleInitialNetworkChoice(plainStore, () =>
     walletStorage.walletExists(),
   )
+  await adoptLegacyConsent(plainStore, () => walletStorage.walletExists())
 }
 
 // Re-export core types and constants so callers can import everything from here.

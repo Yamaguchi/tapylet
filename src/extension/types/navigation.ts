@@ -9,6 +9,8 @@ export type AppScreen =
   | "password-setup"
   | "restore"
   | "unlock"
+  // Only reached when a legal document has been revised.
+  | "consent"
   | "main"
   | "settings"
 
