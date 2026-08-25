@@ -52,12 +52,17 @@ describe("the published terms of service and privacy policy", () => {
   // Only the version in effect and any announced version are held to this. A
   // superseded version is the record of what somebody agreed to and is never
   // edited, whatever it says.
+  //
+  // Version 1.0 stands outside for the same reason: it was published with the
+  // link in it and cannot be edited now, so version 2.0 is what removes it.
+  const EXEMPT_TERMS = ["v1.0.html"]
+
   it("keeps the privacy policy out of the terms of service", () => {
     const upcoming = legalDoc("terms").upcoming
     const live = [
       `v${formatVersion(legalDoc("terms").version)}.html`,
       ...(upcoming ? [`v${formatVersion(upcoming.version)}.html`] : []),
-    ]
+    ].filter((name) => !EXEMPT_TERMS.includes(name))
     for (const name of live) {
       const body = readFileSync(`${DOCS_DIR}/terms/${name}`, "utf-8")
       // A link is what makes it a reference the contract takes in. The document

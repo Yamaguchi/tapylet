@@ -1,21 +1,27 @@
 {
   "docs": {
     "terms": {
-      "version": "1.1",
+      "version": "1.0",
       "changes": {},
       "upcoming": {
         "version": "2.0",
-        "effectiveFrom": "2026-10-01",
+        "effectiveFrom": "2026-09-01",
         "changes": {
           "ja": [
-            "メインネット（Tapyrus APIネットワーク）の利用条件を追加しました。",
+            "メインネット（Tapyrus APIネットワーク）での利用条件を追加しました。",
             "禁止される利用を法令に沿って整理しました。",
-            "免責事項と、未成年の方の利用に関する記載を改めました。"
+            "当社が責任を負わない範囲を改め、当社に故意または重大な過失がある場合には免責されないことを明記しました。",
+            "個人情報の取扱いについて、プライバシーポリシーへの同意を求める記載を削除しました。",
+            "サービスの提供が終了しても、ブロックチェーン上に記録されたデータは残ることを明記しました。",
+            "未成年の方の利用に関する記載を改めました。"
           ],
           "en": [
-            "Added terms for using the mainnet (the Tapyrus API network).",
+            "Added the terms for using the mainnet (the Tapyrus API network).",
             "Reorganized the prohibited uses in line with the law.",
-            "Revised the disclaimers and the terms on use by minors."
+            "Revised the limits of our liability, and stated that they do not apply where we act with intent or gross negligence.",
+            "Removed the clause asking you to agree to the privacy policy as part of these terms.",
+            "Stated that data recorded on the blockchain remains after the service ends.",
+            "Revised the terms on use by minors."
           ]
         }
       }
@@ -25,16 +31,20 @@
       "changes": {},
       "upcoming": {
         "version": "2.0",
-        "effectiveFrom": "2026-10-01",
+        "effectiveFrom": "2026-09-01",
         "changes": {
           "ja": [
             "外部サービスとの通信に伴い、IPアドレス等の接続情報がアクセスログに記録されることを明記しました。",
+            "通信先の外部サービスとして、Token RegistryとGitHub Pagesを明記しました。",
             "接続先のネットワーク（テストネットまたはメインネット）に応じた記載に改めました。",
+            "当社がお客様の個人情報を直接取得しないことを明記しました。",
             "未成年の方の利用に関する記載を改めました。"
           ],
           "en": [
             "Stated that connection details such as IP addresses are recorded in server access logs.",
+            "Named the Token Registry and GitHub Pages among the external services the extension talks to.",
             "Revised the text to reflect the connected network (testnet or mainnet).",
+            "Stated that we do not collect your personal data directly.",
             "Revised the section on use by minors."
           ]
         }

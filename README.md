@@ -149,7 +149,9 @@ and that the handling is published separately — naming the privacy policy is
 fine, linking to it as a term of the agreement is not.
 `test/legalDocs.test.ts` reads the published text and holds the version in
 effect (and any announced version) to this. Superseded versions are left as they
-are, under the rule above.
+are, under the rule above, and so is version 1.0 of the terms: it was published
+with the link in it and cannot be edited now, so version 2.0 is what removes
+it.
 
 **Where the user is asked.** The welcome screen carries the checkboxes, and
 neither creating nor restoring a wallet is reachable without them. A user who
