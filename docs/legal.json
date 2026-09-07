@@ -1,53 +1,51 @@
 {
   "docs": {
     "terms": {
-      "version": "1.0",
-      "changes": {},
-      "upcoming": {
-        "version": "2.0",
-        "effectiveFrom": "2026-09-01",
-        "changes": {
-          "ja": [
-            "メインネット（Tapyrus APIネットワーク）での利用条件を追加しました。",
-            "禁止される利用を法令に沿って整理しました。",
-            "当社が責任を負わない範囲を改め、当社に故意または重大な過失がある場合には免責されないことを明記しました。",
-            "個人情報の取扱いについて、プライバシーポリシーへの同意を求める記載を削除しました。",
-            "サービスの提供が終了しても、ブロックチェーン上に記録されたデータは残ることを明記しました。",
-            "未成年の方の利用に関する記載を改めました。"
-          ],
-          "en": [
-            "Added the terms for using the mainnet (the Tapyrus API network).",
-            "Reorganized the prohibited uses in line with the law.",
-            "Revised the limits of our liability, and stated that they do not apply where we act with intent or gross negligence.",
-            "Removed the clause asking you to agree to the privacy policy as part of these terms.",
-            "Stated that data recorded on the blockchain remains after the service ends.",
-            "Revised the terms on use by minors."
-          ]
-        }
+      "version": "2.1",
+      "changes": {
+        "ja": [
+          "Chrome拡張機能に加えて、iOSアプリとAndroidアプリも本規約の対象になりました。",
+          "テスト専用ではなくなり、メインネットでも使えるようになりました。接続先は設定画面で切り替えます。",
+          "メインネットで発行したトークンについては、発行したお客様が責任を負います。",
+          "禁止される利用を法令に沿って整理しました。",
+          "当社が責任を負わない範囲を改めました。当社に故意または重大な過失があるときは免責されません。",
+          "インストールや使用をもって同意したものとみなす記載と、プライバシーポリシーへの同意を規約で求める記載を削除しました。",
+          "テストネットがリセットされるとトークンが失われること、サービスの提供が終了してもブロックチェーン上のデータは残ることを書き足しました。"
+        ],
+        "en": [
+          "These terms now cover the iOS and Android apps as well as the Chrome extension.",
+          "The service is no longer for testing only. It can be used on the mainnet, and the network is switched in the settings screen.",
+          "You are responsible for any token you issue on the mainnet.",
+          "The prohibited uses have been reorganized in line with the law.",
+          "The limits of our liability have been revised. They do not apply where we act with intent or gross negligence.",
+          "Removed the clause treating installation or use as agreement, and the clause asking you to agree to the privacy policy as part of these terms.",
+          "Added that testnet tokens are lost if the testnet is reset, and that data recorded on the blockchain remains after the service ends."
+        ]
       }
     },
     "privacy": {
-      "version": "1.0",
-      "changes": {},
-      "upcoming": {
-        "version": "2.0",
-        "effectiveFrom": "2026-09-01",
-        "changes": {
-          "ja": [
-            "外部サービスとの通信に伴い、IPアドレス等の接続情報がアクセスログに記録されることを明記しました。",
-            "通信先の外部サービスとして、Token RegistryとGitHub Pagesを明記しました。",
-            "接続先のネットワーク（テストネットまたはメインネット）に応じた記載に改めました。",
-            "当社がお客様の個人情報を直接取得しないことを明記しました。",
-            "未成年の方の利用に関する記載を改めました。"
-          ],
-          "en": [
-            "Stated that connection details such as IP addresses are recorded in server access logs.",
-            "Named the Token Registry and GitHub Pages among the external services the extension talks to.",
-            "Revised the text to reflect the connected network (testnet or mainnet).",
-            "Stated that we do not collect your personal data directly.",
-            "Revised the section on use by minors."
-          ]
-        }
+      "version": "2.1",
+      "changes": {
+        "ja": [
+          "Chrome拡張機能に加えて、iOSアプリとAndroidアプリも本ポリシーの対象になりました。",
+          "「収集しない情報」からIPアドレスを外しました。通信に伴い、IPアドレス等の接続情報がアクセスログに記録されます。",
+          "「当社はお客様の情報を取得しません」を改め、個人情報を直接取得せず、受け取る情報から個人を特定できないことを書きました。",
+          "通信先を具体的に書きました。Tapyrusノード／API、Token Registry、当社がGitHub Pagesで公開しているファイルです。トークンの登録申請ではGitHub、更新ではApp StoreまたはGoogle Playのページが開きます。",
+          "保存先を書き分けました。ブラウザのローカルストレージ、iOSのKeychain、Android Keystoreの鍵で暗号化したアプリ専用の保存領域です。アプリを削除しても、iOSではKeychainの情報が端末に残る場合があります。",
+          "QRコードの読み取りにカメラを使うこと、読み取った画像を保存も送信もしないことを書きました。",
+          "ブロックチェーンに記録された情報は、あとから削除も変更もできないことを書きました。",
+          "未成年の方の利用に関する記載を改めました。"
+        ],
+        "en": [
+          "This policy now covers the iOS and Android apps as well as the Chrome extension.",
+          "The IP address is no longer listed as something we do not collect. Connection details such as IP addresses are recorded in server access logs.",
+          "\"We do not collect your information\" is replaced by a statement that we do not collect personal data directly and cannot identify an individual from what we do receive.",
+          "The external services are named: Tapyrus nodes and API, the Token Registry, and the files we publish on GitHub Pages. Filing a token registration opens GitHub, and an update opens the App Store or Google Play.",
+          "Where data is stored is written per platform: browser local storage, the iOS Keychain, and app-private storage encrypted under a key held in the Android Keystore. On iOS, Keychain data can remain on the device after the app is deleted.",
+          "The iOS and Android apps use the camera to read QR codes. The images are neither stored nor sent anywhere.",
+          "Information recorded on the blockchain cannot afterwards be deleted or altered.",
+          "The section on use by minors has been revised."
+        ]
       }
     }
   }

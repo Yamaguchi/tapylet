@@ -99,12 +99,12 @@ export interface LegalDoc {
 export const BUNDLED_LEGAL_DOCS: Record<LegalDocId, LegalDoc> = {
   terms: {
     kind: "agree",
-    version: { major: 1, minor: 0 },
+    version: { major: 2, minor: 1 },
     changes: {},
   },
   privacy: {
     kind: "acknowledge",
-    version: { major: 1, minor: 0 },
+    version: { major: 2, minor: 1 },
     changes: {},
   },
 }
