@@ -1,7 +1,7 @@
 {
   "name": "tapylet",
   "displayName": "Tapylet",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Tapyrus Wallet",
   "author": "azuchi@chaintope.com",
   "scripts": {
