@@ -113,9 +113,9 @@ simply replaces the text.
 | `src/extension/legal.ts` | The versions this build shipped with, and what each document asks of the user |
 | `src/extension/i18n/locales/*.json` | The names of the documents (`legal.docs.*.label`) |
 
-The version-less URLs are the ones handed out to the outside world, and the
-mobile wallet links to them too, so they have to keep working across a bump.
-GitHub Pages has no redirect rules, hence the standing page at each of them.
+The version-less URLs are the ones handed out to the outside world, so they have
+to keep working across a bump. GitHub Pages has no redirect rules, hence the
+standing page at each of them.
 
 **A version is two numbers (2.1), and which one is raised decides what the user
 sees.**
@@ -287,6 +287,44 @@ The manifest also cannot say just anything. Its versions and dates have to be
 readable as such, a change list is capped in length and in the length of each
 line, and `kind` — what a document asks of the user — is never taken from it at
 all: that follows from what the document is in law.
+
+## The mobile app's terms and privacy policy
+
+The mobile app (`chaintope/tapylet-for-mobile`) has its own terms of service and
+privacy policy, separate from the ones above. Its repository is private and so
+cannot have GitHub Pages, while the App Store and Google Play listings need a
+public URL, so the documents are published from here, under `docs/app/`
+alongside `min-version.json`.
+
+| Location | Holds |
+| --- | --- |
+| `docs/app/terms/v<version>.html` | The terms of service |
+| `docs/app/privacy/v<version>.html` | The privacy policy |
+| `docs/app/terms.html`, `docs/app/privacy.html` | A page that sends the version-less URL to the version in effect |
+
+The app links to the version-less URLs and does not record which version a user
+agreed to, so there is no manifest for these documents: the version in effect is
+whichever file the version-less page points at. A revision reaches every user as
+soon as it is deployed, and nobody is asked to respond to it. Publishing one is:
+
+1. Put the new text at `docs/app/<doc>/v<new version>.html`. Leave the old file.
+2. Point `docs/app/<doc>.html` at the new file.
+3. Run `pnpm test` and deploy.
+
+The rules the extension's documents follow hold here too: a published version is
+never edited, and superseded versions stay readable at their own URL.
+`test/mobileLegalDocs.test.ts` checks that file names match their versions, that
+the version-less page points at a file that exists, and that the terms do not
+link to the privacy policy.
+
+**Swapping the file is not itself notice.** Section 8 of the mobile terms
+undertakes to announce a revision, and its effective date, before it takes
+effect — and to ask for consent where the law requires it. The app has nothing
+to announce it with: no manifest, no banner, no record of what was agreed to. A
+revision that changes rights or obligations therefore has to be carried by
+something else — an announcement on the company site ahead of the date, or a
+release of the app that asks again on the screen. Deploying here is the last
+step of that, not the whole of it. Wording and typos need none of this.
 
 ## License
 
