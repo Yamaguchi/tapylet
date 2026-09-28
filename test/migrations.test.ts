@@ -14,10 +14,13 @@ import {
 } from "@tapylet/core/storage/pendingTxStore"
 import type { KeyValueStore } from "@tapylet/core/storage/types"
 
+import type { WalletData } from "@tapylet/core/types/wallet"
+
 import { networkKeyPrefix } from "~/extension/storage/adapters/prefixed"
 import {
   migrateLegacyNetworkKeys,
   settleInitialNetworkChoice,
+  ensureWalletNetworkKeys,
 } from "~/extension/storage/migrations"
 import { SELECTED_NETWORK_KEY } from "~/extension/storage/networkStore"
 
@@ -230,5 +233,96 @@ describe("settleInitialNetworkChoice", () => {
     await settleInitialNetworkChoice(storage, hasWallet)
 
     expect(storage.values).toEqual(afterFirst)
+  })
+})
+
+// Gives a wallet created before mainnet/testnet had separate keys both, and
+// carries its one address forward so any real funds sent to it stay
+// reachable. Real derivation (a BIP39 test vector), not mocked, so the
+// address shapes are asserted along with the migration bookkeeping.
+describe("ensureWalletNetworkKeys", () => {
+  const TEST_MNEMONIC =
+    "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about"
+
+  const baseWallet = (overrides: Partial<WalletData> = {}): WalletData => ({
+    mnemonic: TEST_MNEMONIC,
+    createdAt: 1700000000000,
+    networks: {},
+    ...overrides,
+  })
+
+  it("derives both networks and carries the old address forward for a pre-split wallet", async () => {
+    const wallet = baseWallet({
+      networks: undefined as unknown as Record<number, never>,
+      address: "1LegacyAddressXXXXXXXXXXXXXXXXXXXX",
+      publicKey: "02legacy",
+    })
+
+    const { wallet: migrated, changed, migratedFromLegacyFormat } =
+      await ensureWalletNetworkKeys(wallet)
+
+    expect(changed).toBe(true)
+    expect(migratedFromLegacyFormat).toBe(true)
+    expect(migrated.legacyMainnetAddress).toBe("1LegacyAddressXXXXXXXXXXXXXXXXXXXX")
+    expect(migrated.address).toBeUndefined()
+    expect(migrated.publicKey).toBeUndefined()
+
+    const mainnet = migrated.networks[NETWORKS.mainnet.id]
+    const testnet = migrated.networks[NETWORKS.testnet.id]
+    expect(mainnet.address[0]).toBe("1") // mainnet P2PKH prefix
+    expect(testnet.address[0]).toBe("m") // testnet/dev P2PKH prefix (m or n)
+    expect(mainnet.address).not.toBe(testnet.address)
+  })
+
+  it("does nothing for a wallet that already has both keys", async () => {
+    const wallet = baseWallet({
+      networks: {
+        [NETWORKS.mainnet.id]: { address: "1Already", publicKey: "02aa" },
+        [NETWORKS.testnet.id]: { address: "mAlready", publicKey: "02bb" },
+      },
+    })
+
+    const result = await ensureWalletNetworkKeys(wallet)
+
+    expect(result.changed).toBe(false)
+    expect(result.migratedFromLegacyFormat).toBe(false)
+    expect(result.wallet).toBe(wallet) // untouched, not even a shallow copy
+  })
+
+  it("fills in only the network that is missing", async () => {
+    const wallet = baseWallet({
+      networks: {
+        [NETWORKS.mainnet.id]: { address: "1Already", publicKey: "02aa" },
+      },
+    })
+
+    const { wallet: migrated, changed, migratedFromLegacyFormat } =
+      await ensureWalletNetworkKeys(wallet)
+
+    expect(changed).toBe(true)
+    expect(migratedFromLegacyFormat).toBe(false)
+    expect(migrated.networks[NETWORKS.mainnet.id]).toEqual({ address: "1Already", publicKey: "02aa" })
+    expect(migrated.networks[NETWORKS.testnet.id].address[0]).toBe("m")
+  })
+
+  it("leaves a network missing when deriving it fails, without blocking the other", async () => {
+    const deriveModule = await import("~/extension/wallet/deriveNetworkWallet")
+    const spy = jest
+      .spyOn(deriveModule, "deriveNetworkWallet")
+      .mockImplementation(async (mnemonic, networkId) => {
+        if (networkId === NETWORKS.testnet.id) throw new Error("boom")
+        return { address: "1Derived", publicKey: "02cc" }
+      })
+
+    try {
+      const wallet = baseWallet()
+      const { wallet: migrated, changed } = await ensureWalletNetworkKeys(wallet)
+
+      expect(changed).toBe(true)
+      expect(migrated.networks[NETWORKS.mainnet.id]).toEqual({ address: "1Derived", publicKey: "02cc" })
+      expect(migrated.networks[NETWORKS.testnet.id]).toBeUndefined()
+    } finally {
+      spy.mockRestore()
+    }
   })
 })

@@ -11,7 +11,8 @@
     "tryAgain": "Try Again",
     "copy": "Copy",
     "copied": "Copied!",
-    "decimalHint": "Up to {{decimals}} decimal places"
+    "decimalHint": "Up to {{decimals}} decimal places",
+    "settings": "Settings"
   },
   "network": {
     "mainnet": "Mainnet",
@@ -178,7 +179,30 @@
     "autoLockMinutes_other": "{{count}} minutes",
     "autoLockHours_one": "{{count}} hour",
     "autoLockHours_other": "{{count}} hours",
-    "autoLockNever": "Never"
+    "autoLockNever": "Never",
+    "legacyAddressTitle": "Previous mainnet address",
+    "legacyAddressDescription": "The address used before mainnet and testnet had separate addresses",
+    "legacyAddressButton": "View"
+  },
+  "legacyAddress": {
+    "title": "Previous mainnet address",
+    "description": "This is the address used before mainnet and testnet had separate addresses. If anything remains here, you can send it to your new mainnet address.",
+    "address": "Address",
+    "switchToMainnet": "Switch to mainnet to check this address's balance.",
+    "switchButton": "Switch to mainnet",
+    "sendButton": "Send to the new address"
+  },
+  "missingNetworkKey": {
+    "title": "No key generated for {{network}} yet",
+    "description": "Key generation failed for some reason. Please try again.",
+    "regenerate": "Generate key",
+    "error": "Failed to generate the key. Please try again."
+  },
+  "legacyMigrationNotice": {
+    "title": "Your mainnet address has changed",
+    "description": "Mainnet and testnet now use separate addresses. You can view and send from your previous mainnet address under Settings → \"Previous mainnet address\".",
+    "openSettings": "Open settings",
+    "continueButton": "Continue"
   },
   "issue": {
     "title": "Issue Asset",

@@ -144,6 +144,7 @@ export const AssetDetailModal: React.FC<AssetDetailModalProps> = ({
         amount: parsedAmount,
         colorId,
         mnemonic: walletData.mnemonic,
+        networkId: network.id,
       })
 
       setBurnTxid(result.txid)

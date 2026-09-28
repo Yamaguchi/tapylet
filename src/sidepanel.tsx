@@ -16,15 +16,31 @@ import { useAutoLock } from "~/extension/hooks/useAutoLock"
 import { NetworkProvider, useNetwork } from "~/extension/hooks/useNetwork"
 import { applyLegalManifest, LEGAL_DOC_IDS, majorsOf, outdatedDocs, type LegalDocId } from "~/extension/legal"
 import { fetchLegalManifest } from "~/extension/legalManifest"
-import { WelcomeScreen, CreateWalletScreen, MnemonicDisplayScreen, MnemonicConfirmScreen, PasswordSetupScreen, RestoreWalletScreen, UnlockScreen, ConsentUpdateScreen, MainWalletScreen, SettingsScreen } from "~/extension/screens"
+import { deriveNetworkWallet } from "~/extension/wallet/deriveNetworkWallet"
+import {
+  WelcomeScreen,
+  CreateWalletScreen,
+  MnemonicDisplayScreen,
+  MnemonicConfirmScreen,
+  PasswordSetupScreen,
+  RestoreWalletScreen,
+  UnlockScreen,
+  ConsentUpdateScreen,
+  MainWalletScreen,
+  SettingsScreen,
+  LegacyAddressScreen,
+  LegacyMigrationNoticeScreen,
+  MissingNetworkKeyScreen,
+} from "~/extension/screens"
 import type { AppScreen } from "~/extension/types/navigation"
+import type { NetworkWalletKeys } from "@tapylet/core/types/wallet"
 import "~/extension/i18n"
 import "./styles/globals.css"
 
 // The screens that carry consent checkboxes of their own.
 const CONSENT_SCREENS: AppScreen[] = ["welcome", "consent"]
 
-const UNLOCKED_SCREENS: AppScreen[] = ["main", "settings"]
+const UNLOCKED_SCREENS: AppScreen[] = ["main", "settings", "legacy-address", "legacy-migration-notice"]
 
 function SidePanelContent() {
   // The persisted network is read asynchronously; until it arrives the panel
@@ -32,7 +48,9 @@ function SidePanelContent() {
   const { network, isReady: isNetworkReady } = useNetwork()
   const [screen, setScreen] = useState<AppScreen>("loading")
   const [tempMnemonic, setTempMnemonic] = useState<string | null>(null)
-  const [address, setAddress] = useState<string | null>(null)
+  const [walletNetworks, setWalletNetworks] = useState<Record<number, NetworkWalletKeys> | null>(null)
+  const [legacyMainnetAddress, setLegacyMainnetAddress] = useState<string | null>(null)
+  const address = walletNetworks?.[network.id]?.address ?? null
   const [autoLockMinutes, setAutoLockMinutes] = useState<number>(DEFAULT_AUTO_LOCK_MINUTES)
   // The documents that have to be agreed to (acknowledged) again. Only consulted
   // for a wallet that already exists: the welcome screen carries its own
@@ -117,14 +135,37 @@ function SidePanelContent() {
       .catch((err) => console.error("Failed to store the consent:", err))
   // The welcome screen took the consent for both documents, so the wallet and
   // the record of what was agreed to come into being together.
-  const handleWalletCreated = (walletAddress: string) => { setAddress(walletAddress); setTempMnemonic(null); recordConsent(LEGAL_DOC_IDS) }
+  const handleWalletCreated = (networks: Record<number, NetworkWalletKeys>) => {
+    setWalletNetworks(networks)
+    setLegacyMainnetAddress(null)
+    setTempMnemonic(null)
+    recordConsent(LEGAL_DOC_IDS)
+  }
   const handleConsentAgree = async () => {
     // Only the documents the screen put to the user.
     await recordConsent(outdatedConsents)
     setOutdatedConsents([])
     setScreen("unlock")
   }
-  const handleUnlock = (walletAddress: string) => setAddress(walletAddress)
+  const handleUnlock = (
+    networks: Record<number, NetworkWalletKeys>,
+    legacyAddress: string | null,
+  ) => {
+    setWalletNetworks(networks)
+    setLegacyMainnetAddress(legacyAddress)
+  }
+  // Retries deriving this network's key after ensureWalletNetworkKeys left it
+  // missing (see ~/extension/screens/MissingNetworkKeyScreen). The session is
+  // already unlocked, so the mnemonic is available without asking for the
+  // password again.
+  const handleRegenerateNetworkKey = async () => {
+    const wallet = await walletStorage.getWallet()
+    if (!wallet) throw new Error("Wallet not found")
+    const keys = await deriveNetworkWallet(wallet.mnemonic, network.id)
+    const updatedNetworks = { ...wallet.networks, [network.id]: keys }
+    await walletStorage.saveWallet({ ...wallet, networks: updatedNetworks })
+    setWalletNetworks(updatedNetworks)
+  }
 
   const renderScreen = () => {
     if (!isNetworkReady) {
@@ -140,11 +181,17 @@ function SidePanelContent() {
       case "restore": return <RestoreWalletScreen onNavigate={handleNavigate} onMnemonicEntered={handleMnemonicEntered} />
       case "unlock": return <UnlockScreen onNavigate={handleNavigate} onUnlock={handleUnlock} />
       case "consent": return <ConsentUpdateScreen docs={outdatedConsents} onAgree={handleConsentAgree} />
+      case "legacy-migration-notice": return <LegacyMigrationNoticeScreen onNavigate={handleNavigate} />
       // Keyed on the network so a switch remounts the screen: every balance,
       // asset and pending transaction it holds belongs to the previous chain,
       // and remounting discards them all rather than clearing each.
-      case "main": return address ? <MainWalletScreen key={network.id} address={address} onNavigate={handleNavigate} /> : null
-      case "settings": return <SettingsScreen onNavigate={handleNavigate} />
+      case "main":
+        if (!walletNetworks) return null
+        return address
+          ? <MainWalletScreen key={network.id} address={address} onNavigate={handleNavigate} />
+          : <MissingNetworkKeyScreen key={network.id} network={network} onNavigate={handleNavigate} onRegenerate={handleRegenerateNetworkKey} />
+      case "settings": return <SettingsScreen legacyMainnetAddress={legacyMainnetAddress} onNavigate={handleNavigate} />
+      case "legacy-address": return legacyMainnetAddress ? <LegacyAddressScreen legacyMainnetAddress={legacyMainnetAddress} onNavigate={handleNavigate} /> : null
       default: return <WelcomeScreen onNavigate={handleNavigate} />
     }
   }

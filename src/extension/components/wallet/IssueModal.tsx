@@ -209,6 +209,7 @@ export const IssueModal: React.FC<IssueModalProps> = ({
         metadata,
         mnemonic: walletData.mnemonic,
         fromAddress: address,
+        networkId: network.id,
       })
 
       // Save to local storage

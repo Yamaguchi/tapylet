@@ -11,7 +11,8 @@
     "tryAgain": "再試行",
     "copy": "コピー",
     "copied": "コピーしました",
-    "decimalHint": "小数点第{{decimals}}位まで入力可能"
+    "decimalHint": "小数点第{{decimals}}位まで入力可能",
+    "settings": "設定"
   },
   "network": {
     "mainnet": "メインネット",
@@ -178,7 +179,30 @@
     "autoLockMinutes_other": "{{count}} 分",
     "autoLockHours_one": "{{count}} 時間",
     "autoLockHours_other": "{{count}} 時間",
-    "autoLockNever": "ロックしない"
+    "autoLockNever": "ロックしない",
+    "legacyAddressTitle": "以前のメインネットアドレス",
+    "legacyAddressDescription": "アドレスが分かれる前に使っていたアドレスです",
+    "legacyAddressButton": "確認する"
+  },
+  "legacyAddress": {
+    "title": "以前のメインネットアドレス",
+    "description": "メインネットとテストネットでアドレスが分かれる前に使っていたアドレスです。ここに資産が残っている場合、新しいメインネットアドレスへ送金して移せます。",
+    "address": "アドレス",
+    "switchToMainnet": "このアドレスの残高を確認するには、メインネットに切り替えてください。",
+    "switchButton": "メインネットに切り替える",
+    "sendButton": "新しいアドレスへ送金する"
+  },
+  "missingNetworkKey": {
+    "title": "{{network}}用の鍵が未生成です",
+    "description": "何らかの理由で鍵の生成に失敗しました。もう一度お試しください。",
+    "regenerate": "鍵を生成する",
+    "error": "鍵の生成に失敗しました。もう一度お試しください。"
+  },
+  "legacyMigrationNotice": {
+    "title": "メインネットのアドレスが変わりました",
+    "description": "メインネットとテストネットで別々のアドレスを使うようになりました。以前のメインネットアドレスは設定画面の「以前のメインネットアドレス」から確認・送金できます。",
+    "openSettings": "設定を開く",
+    "continueButton": "続ける"
   },
   "issue": {
     "title": "アセット発行",

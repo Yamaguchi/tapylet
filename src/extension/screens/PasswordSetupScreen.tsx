@@ -1,15 +1,16 @@
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 import { Button, Input } from "../components/ui"
-import { createHDWallet, generateAddress } from "@tapylet/core/wallet"
+import { deriveNetworkWallet } from "~/extension/wallet/deriveNetworkWallet"
 import { walletStorage } from "~/extension/storage"
+import { NETWORK_KEYS, NETWORKS } from "~/extension/constants/network"
 import type { AppScreen } from "~/extension/types/navigation"
-import type { WalletData } from "@tapylet/core/types/wallet"
+import type { WalletData, NetworkWalletKeys } from "@tapylet/core/types/wallet"
 
 interface PasswordSetupScreenProps {
   mnemonic: string
   onNavigate: (screen: AppScreen) => void
-  onWalletCreated: (address: string) => void
+  onWalletCreated: (networks: Record<number, NetworkWalletKeys>) => void
 }
 
 export const PasswordSetupScreen: React.FC<PasswordSetupScreenProps> = ({
@@ -40,26 +41,28 @@ export const PasswordSetupScreen: React.FC<PasswordSetupScreenProps> = ({
     setIsCreating(true)
 
     try {
-      // Create HD wallet
-      const keys = await createHDWallet(mnemonic)
-      const address = generateAddress(keys.publicKey)
+      // A freshly generated mnemonic deriving a key is a pure, offline
+      // computation — unlike migrating an existing wallet, there is no
+      // reason for one network to succeed and the other to fail, so a
+      // failure here fails wallet creation outright rather than leaving a
+      // network ungenerated.
+      const networks: Record<number, NetworkWalletKeys> = {}
+      for (const key of NETWORK_KEYS) {
+        networks[NETWORKS[key].id] = await deriveNetworkWallet(mnemonic, NETWORKS[key].id)
+      }
 
       // Set password and save wallet
       await walletStorage.setPassword(password)
 
       const walletData: WalletData = {
         mnemonic, // plaintext here; encrypted at rest by SecureStorage
-        address,
-        publicKey: Buffer.from(keys.publicKey).toString("hex"),
+        networks,
         createdAt: Date.now(),
       }
 
       await walletStorage.saveWallet(walletData)
 
-      // Clear sensitive data from memory
-      keys.privateKey.fill(0)
-
-      onWalletCreated(address)
+      onWalletCreated(networks)
       onNavigate("main")
     } catch (err) {
       console.error("Failed to create wallet:", err)

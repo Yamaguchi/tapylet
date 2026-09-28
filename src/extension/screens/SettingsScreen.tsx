@@ -8,6 +8,7 @@ import { NETWORK_KEYS, NETWORKS, type NetworkKey } from "~/extension/constants/n
 import type { AppScreen } from "~/extension/types/navigation"
 
 interface SettingsScreenProps {
+  legacyMainnetAddress: string | null
   onNavigate: (screen: AppScreen) => void
 }
 
@@ -15,6 +16,7 @@ interface SettingsScreenProps {
 const APP_VERSION = chrome.runtime.getManifest().version
 
 export const SettingsScreen: React.FC<SettingsScreenProps> = ({
+  legacyMainnetAddress,
   onNavigate,
 }) => {
   const { t } = useTranslation()
@@ -130,6 +132,27 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
             </div>
           </CardContent>
         </Card>
+
+        {/* Legacy mainnet address */}
+        {legacyMainnetAddress && (
+          <Card>
+            <CardContent>
+              <div className="flex justify-between items-center">
+                <div className="flex-1 pr-3">
+                  <p className="text-sm text-slate-800">{t("settings.legacyAddressTitle")}</p>
+                  <p className="text-xs text-slate-500 mt-0.5">
+                    {t("settings.legacyAddressDescription")}
+                  </p>
+                </div>
+                <button
+                  onClick={() => onNavigate("legacy-address")}
+                  className="px-3 py-1.5 rounded-lg border border-slate-300 text-sm text-slate-700 hover:bg-slate-50 transition-colors">
+                  {t("settings.legacyAddressButton")}
+                </button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Security */}
         <Card>

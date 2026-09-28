@@ -366,6 +366,7 @@ export const MainWalletScreen: React.FC<MainWalletScreenProps> = ({
       {/* Send Modal */}
       <SendModal
         address={address}
+        networkId={network.id}
         tpcBalance={balances?.tpc ?? { confirmed: 0, unconfirmed: 0, total: 0 }}
         assets={balances?.assets ?? []}
         tokenMetadata={tokenMetadata}

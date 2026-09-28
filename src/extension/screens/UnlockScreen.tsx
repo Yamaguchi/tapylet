@@ -2,11 +2,16 @@ import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 import { Button, Input } from "../components/ui"
 import { walletStorage } from "~/extension/storage"
+import { ensureWalletNetworkKeys } from "~/extension/storage/migrations"
 import type { AppScreen } from "~/extension/types/navigation"
+import type { NetworkWalletKeys } from "@tapylet/core/types/wallet"
 
 interface UnlockScreenProps {
   onNavigate: (screen: AppScreen) => void
-  onUnlock: (address: string) => void
+  onUnlock: (
+    networks: Record<number, NetworkWalletKeys>,
+    legacyMainnetAddress: string | null,
+  ) => void
 }
 
 export const UnlockScreen: React.FC<UnlockScreenProps> = ({
@@ -45,8 +50,13 @@ export const UnlockScreen: React.FC<UnlockScreenProps> = ({
         return
       }
 
-      onUnlock(wallet.address)
-      onNavigate("main")
+      const { wallet: migrated, changed, migratedFromLegacyFormat } = await ensureWalletNetworkKeys(wallet)
+      if (changed) {
+        await walletStorage.saveWallet(migrated)
+      }
+
+      onUnlock(migrated.networks, migrated.legacyMainnetAddress ?? null)
+      onNavigate(migratedFromLegacyFormat ? "legacy-migration-notice" : "main")
     } catch (err) {
       console.error("Failed to unlock:", err)
       setError(t("unlock.errors.incorrectPassword"))

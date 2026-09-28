@@ -10,6 +10,13 @@ import { isValidAmount, parseAndValidateAmount, MAX_AMOUNT, MAX_COLORED_AMOUNT }
 
 interface SendModalProps {
   address: string
+  // TIP-0044 id of the network `address` (and any recipient address) is
+  // encoded for.
+  networkId: number
+  // Sign with the pre-network-split key instead of deriving one for
+  // networkId (see @tapylet/core/wallet/transaction#SendOptions). Only used
+  // by the legacy-address recovery screen.
+  fromLegacyMainnetWallet?: boolean
   tpcBalance: BalanceDetails
   assets: AssetBalance[]
   tokenMetadata: Map<string, Metadata>
@@ -22,6 +29,8 @@ type SendStep = "input" | "confirm" | "sending" | "success" | "error"
 
 export const SendModal: React.FC<SendModalProps> = ({
   address,
+  networkId,
+  fromLegacyMainnetWallet,
   tpcBalance,
   assets,
   tokenMetadata,
@@ -71,7 +80,7 @@ export const SendModal: React.FC<SendModalProps> = ({
       return
     }
 
-    if (!validateAddress(toAddress.trim())) {
+    if (!validateAddress(toAddress.trim(), networkId)) {
       setError(t("send.errors.invalidAddress"))
       return
     }
@@ -186,6 +195,8 @@ export const SendModal: React.FC<SendModalProps> = ({
           amount: sendAmount,
           split: sendSplit,
           mnemonic: walletData.mnemonic,
+          networkId,
+          fromLegacyMainnetWallet,
         })
       } else {
         sendAmount = parseAndValidateAmount(amount, MAX_COLORED_AMOUNT, selectedDecimals)!
@@ -196,6 +207,8 @@ export const SendModal: React.FC<SendModalProps> = ({
           split: sendSplit,
           colorId: selectedColorId,
           mnemonic: walletData.mnemonic,
+          networkId,
+          fromLegacyMainnetWallet,
         })
       }
 

@@ -13,12 +13,15 @@
 // registration — none of which can be recovered once the key is orphaned.
 
 import type { KeyValueStore } from "@tapylet/core/storage/types"
+import type { WalletData } from "@tapylet/core/types/wallet"
 
 import { networkKeyPrefix } from "./adapters/prefixed"
 import { SELECTED_NETWORK_KEY } from "./networkStore"
+import { deriveNetworkWallet } from "~/extension/wallet/deriveNetworkWallet"
 
 import {
   DEFAULT_NETWORK,
+  NETWORK_KEYS,
   NETWORKS,
   type NetworkKey,
 } from "~/extension/constants/network"
@@ -82,4 +85,61 @@ export const settleInitialNetworkChoice = async (
   if ((await storage.get(SELECTED_NETWORK_KEY)) !== null) return
   const key = (await walletExists()) ? LEGACY_NETWORK : DEFAULT_NETWORK
   await storage.set(SELECTED_NETWORK_KEY, key)
+}
+
+/**
+ * Fills in any network this wallet doesn't have a key for yet, and — for a
+ * wallet that predates per-network keys — carries its one address forward as
+ * `legacyMainnetAddress` instead of discarding it. Real funds may still sit
+ * at that address (it was always mainnet-formatted), so it is never
+ * recomputed, only copied once.
+ *
+ * Unlike the migrations above, this can only run after unlock: deriving from
+ * the mnemonic needs it decrypted. Each network is derived independently, so
+ * one failing (a transient error, unexpected data) still leaves the other
+ * usable; the host is expected to offer a retry for whichever is missing
+ * (see ~/extension/screens/MissingNetworkKeyScreen).
+ *
+ * Returns `changed: false` without touching `wallet` when nothing was
+ * missing, so the caller can skip an unnecessary write. `migratedFromLegacyFormat`
+ * is true only on the one call that consumes a pre-split wallet's `address`
+ * into `legacyMainnetAddress` — the host uses it to show a one-time notice
+ * that the mainnet address on screen has changed.
+ */
+export const ensureWalletNetworkKeys = async (
+  wallet: WalletData,
+): Promise<{ wallet: WalletData; changed: boolean; migratedFromLegacyFormat: boolean }> => {
+  let changed = false
+  let migratedFromLegacyFormat = false
+  const networks = { ...wallet.networks }
+  let legacyMainnetAddress = wallet.legacyMainnetAddress
+
+  if (wallet.address && legacyMainnetAddress === undefined) {
+    legacyMainnetAddress = wallet.address
+    changed = true
+    migratedFromLegacyFormat = true
+  }
+
+  for (const key of NETWORK_KEYS) {
+    const networkId = NETWORKS[key].id
+    if (networks[networkId]) continue
+    try {
+      networks[networkId] = await deriveNetworkWallet(wallet.mnemonic, networkId)
+      changed = true
+    } catch (err) {
+      console.error(`Failed to derive the ${key} key:`, err)
+    }
+  }
+
+  if (!changed) return { wallet, changed: false, migratedFromLegacyFormat: false }
+
+  const migrated: WalletData = {
+    ...wallet,
+    networks,
+    legacyMainnetAddress,
+  }
+  delete migrated.address
+  delete migrated.publicKey
+
+  return { wallet: migrated, changed: true, migratedFromLegacyFormat }
 }

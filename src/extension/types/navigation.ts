@@ -11,8 +11,12 @@ export type AppScreen =
   | "unlock"
   // Only reached when a legal document has been revised.
   | "consent"
+  // Only reached once, right after a pre-network-split wallet gets separate
+  // mainnet/testnet keys.
+  | "legacy-migration-notice"
   | "main"
   | "settings"
+  | "legacy-address"
 
 export interface NavigationState {
   screen: AppScreen
