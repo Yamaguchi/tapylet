@@ -9,7 +9,7 @@ export const deriveNetworkWallet = async (
   networkId: number,
 ): Promise<NetworkWalletKeys> => {
   const keys = await createHDWallet(mnemonic, networkId)
-  const address = generateAddress(keys.publicKey, networkId)
+  const address = generateAddress(keys.publicKey)
   const publicKey = Buffer.from(keys.publicKey).toString("hex")
   keys.privateKey.fill(0)
   return { address, publicKey }

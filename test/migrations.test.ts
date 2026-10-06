@@ -269,8 +269,10 @@ describe("ensureWalletNetworkKeys", () => {
 
     const mainnet = migrated.networks[NETWORKS.mainnet.id]
     const testnet = migrated.networks[NETWORKS.testnet.id]
-    expect(mainnet.address[0]).toBe("1") // mainnet P2PKH prefix
-    expect(testnet.address[0]).toBe("m") // testnet/dev P2PKH prefix (m or n)
+    // Both networks encode addresses in the prod P2PKH format; only the
+    // derivation path differs, so the addresses must still differ.
+    expect(mainnet.address[0]).toBe("1")
+    expect(testnet.address[0]).toBe("1")
     expect(mainnet.address).not.toBe(testnet.address)
   })
 
@@ -302,7 +304,7 @@ describe("ensureWalletNetworkKeys", () => {
     expect(changed).toBe(true)
     expect(migratedFromLegacyFormat).toBe(false)
     expect(migrated.networks[NETWORKS.mainnet.id]).toEqual({ address: "1Already", publicKey: "02aa" })
-    expect(migrated.networks[NETWORKS.testnet.id].address[0]).toBe("m")
+    expect(migrated.networks[NETWORKS.testnet.id].address[0]).toBe("1")
   })
 
   it("leaves a network missing when deriving it fails, without blocking the other", async () => {

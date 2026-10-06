@@ -80,7 +80,7 @@ export const SendModal: React.FC<SendModalProps> = ({
       return
     }
 
-    if (!validateAddress(toAddress.trim(), networkId)) {
+    if (!validateAddress(toAddress.trim())) {
       setError(t("send.errors.invalidAddress"))
       return
     }
