@@ -140,9 +140,6 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
               <div className="flex justify-between items-center">
                 <div className="flex-1 pr-3">
                   <p className="text-sm text-slate-800">{t("settings.legacyAddressTitle")}</p>
-                  <p className="text-xs text-slate-500 mt-0.5">
-                    {t("settings.legacyAddressDescription")}
-                  </p>
                 </div>
                 <button
                   onClick={() => onNavigate("legacy-address")}

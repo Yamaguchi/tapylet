@@ -180,13 +180,12 @@
     "autoLockHours_one": "{{count}} hour",
     "autoLockHours_other": "{{count}} hours",
     "autoLockNever": "Never",
-    "legacyAddressTitle": "Previous mainnet address",
-    "legacyAddressDescription": "The address used before mainnet and testnet had separate addresses",
+    "legacyAddressTitle": "View the mainnet address from the older version",
     "legacyAddressButton": "View"
   },
   "legacyAddress": {
     "title": "Previous mainnet address",
-    "description": "This is the address used before mainnet and testnet had separate addresses. If anything remains here, you can send it to your new mainnet address.",
+    "description": "This is the mainnet address used by the older version. If anything remains here, you can send it to your new mainnet address.",
     "address": "Address",
     "switchToMainnet": "Switch to mainnet to check this address's balance.",
     "switchButton": "Switch to mainnet",
@@ -200,7 +199,7 @@
   },
   "legacyMigrationNotice": {
     "title": "Your mainnet address has changed",
-    "description": "Mainnet and testnet now use separate addresses. You can view and send from your previous mainnet address under Settings → \"Previous mainnet address\".",
+    "description": "You can view and send from your previous mainnet address under Settings → \"View the mainnet address from the older version\".",
     "openSettings": "Open settings",
     "continueButton": "Continue"
   },

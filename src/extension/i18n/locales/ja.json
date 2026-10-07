@@ -180,13 +180,12 @@
     "autoLockHours_one": "{{count}} 時間",
     "autoLockHours_other": "{{count}} 時間",
     "autoLockNever": "ロックしない",
-    "legacyAddressTitle": "以前のメインネットアドレス",
-    "legacyAddressDescription": "アドレスが分かれる前に使っていたアドレスです",
+    "legacyAddressTitle": "古いバージョンのメインネットアドレスを確認する",
     "legacyAddressButton": "確認する"
   },
   "legacyAddress": {
     "title": "以前のメインネットアドレス",
-    "description": "メインネットとテストネットでアドレスが分かれる前に使っていたアドレスです。ここに資産が残っている場合、新しいメインネットアドレスへ送金して移せます。",
+    "description": "古いバージョンで使用していたメインネットのアドレスです。ここに資産が残っている場合、新しいメインネットアドレスへ送金して移せます。",
     "address": "アドレス",
     "switchToMainnet": "このアドレスの残高を確認するには、メインネットに切り替えてください。",
     "switchButton": "メインネットに切り替える",
@@ -200,7 +199,7 @@
   },
   "legacyMigrationNotice": {
     "title": "メインネットのアドレスが変わりました",
-    "description": "メインネットとテストネットで別々のアドレスを使うようになりました。以前のメインネットアドレスは設定画面の「以前のメインネットアドレス」から確認・送金できます。",
+    "description": "以前のメインネットアドレスは設定画面の「古いバージョンのメインネットアドレスを確認する」から確認・送金できます。",
     "openSettings": "設定を開く",
     "continueButton": "続ける"
   },
