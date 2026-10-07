@@ -84,12 +84,18 @@ describe("the published terms of service and privacy policy", () => {
   // The version-less URL is the one handed out to the outside world and the one
   // older builds still link to. GitHub Pages has no redirect rules, so the page
   // at that URL is what carries the user to the version in effect.
+  // The version in effect is the one the published manifest names; the build's
+  // own copy is only a floor and lags behind it until the next release.
   it("sends the version-less URL to the version in effect", () => {
+    const manifest = parseLegalManifest(
+      JSON.parse(readFileSync(`${DOCS_DIR}/legal.json`, "utf-8")),
+    )
     for (const id of LEGAL_DOC_IDS) {
+      const version = manifest?.docs[id]?.version
+      expect(version).toBeDefined()
+      if (!version) continue
       const stub = readFileSync(`${DOCS_DIR}/${id}.html`, "utf-8")
-      expect(stub).toContain(
-        `./${id}/v${formatVersion(legalDoc(id).version)}.html`,
-      )
+      expect(stub).toContain(`./${id}/v${formatVersion(version)}.html`)
     }
   })
 
