@@ -18,6 +18,9 @@ import type { AppScreen } from "~/extension/types/navigation"
 
 interface LegacyAddressScreenProps {
   legacyMainnetAddress: string
+  // Where funds left at the legacy address are expected to go. Null when the
+  // mainnet key could not be derived, in which case nothing is prefilled.
+  newMainnetAddress: string | null
   onNavigate: (screen: AppScreen) => void
 }
 
@@ -28,6 +31,7 @@ interface LegacyAddressScreenProps {
 // this screen simply asks for mainnet to be selected first.
 export const LegacyAddressScreen: React.FC<LegacyAddressScreenProps> = ({
   legacyMainnetAddress,
+  newMainnetAddress,
   onNavigate,
 }) => {
   const { t } = useTranslation()
@@ -143,6 +147,7 @@ export const LegacyAddressScreen: React.FC<LegacyAddressScreenProps> = ({
         address={legacyMainnetAddress}
         networkId={NetworkId.TAPYRUS_API}
         fromLegacyMainnetWallet
+        defaultToAddress={newMainnetAddress ?? undefined}
         tpcBalance={balances?.tpc ?? { confirmed: 0, unconfirmed: 0, total: 0 }}
         assets={balances?.assets ?? []}
         tokenMetadata={tokenMetadata}

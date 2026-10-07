@@ -17,6 +17,8 @@ interface SendModalProps {
   // networkId (see @tapylet/core/wallet/transaction#SendOptions). Only used
   // by the legacy-address recovery screen.
   fromLegacyMainnetWallet?: boolean
+  // Prefilled into the recipient field each time the modal opens; still editable.
+  defaultToAddress?: string
   tpcBalance: BalanceDetails
   assets: AssetBalance[]
   tokenMetadata: Map<string, Metadata>
@@ -31,6 +33,7 @@ export const SendModal: React.FC<SendModalProps> = ({
   address,
   networkId,
   fromLegacyMainnetWallet,
+  defaultToAddress = "",
   tpcBalance,
   assets,
   tokenMetadata,
@@ -41,7 +44,7 @@ export const SendModal: React.FC<SendModalProps> = ({
   const { t } = useTranslation()
   const [step, setStep] = useState<SendStep>("input")
   const [selectedColorId, setSelectedColorId] = useState<string>(TPC_COLOR_ID)
-  const [toAddress, setToAddress] = useState("")
+  const [toAddress, setToAddress] = useState(defaultToAddress)
   const [amount, setAmount] = useState("")
   const [split, setSplit] = useState("1")
   const [error, setError] = useState<string | null>(null)
@@ -59,7 +62,7 @@ export const SendModal: React.FC<SendModalProps> = ({
   const resetState = () => {
     setStep("input")
     setSelectedColorId(TPC_COLOR_ID)
-    setToAddress("")
+    setToAddress(defaultToAddress)
     setAmount("")
     setSplit("1")
     setError(null)

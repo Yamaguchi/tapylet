@@ -5,7 +5,7 @@
 // unconfigured core. Today core is only touched at render time, which is well
 // after this runs either way — the position is what keeps that from being
 // load-bearing.
-import "~/extension/constants/network"
+import { NETWORKS } from "~/extension/constants/network"
 
 import { useCallback, useEffect, useState } from "react"
 import { Loading } from "~/extension/components/ui"
@@ -191,7 +191,7 @@ function SidePanelContent() {
           ? <MainWalletScreen key={network.id} address={address} onNavigate={handleNavigate} />
           : <MissingNetworkKeyScreen key={network.id} network={network} onNavigate={handleNavigate} onRegenerate={handleRegenerateNetworkKey} />
       case "settings": return <SettingsScreen legacyMainnetAddress={legacyMainnetAddress} onNavigate={handleNavigate} />
-      case "legacy-address": return legacyMainnetAddress ? <LegacyAddressScreen legacyMainnetAddress={legacyMainnetAddress} onNavigate={handleNavigate} /> : null
+      case "legacy-address": return legacyMainnetAddress ? <LegacyAddressScreen legacyMainnetAddress={legacyMainnetAddress} newMainnetAddress={walletNetworks?.[NETWORKS.mainnet.id]?.address ?? null} onNavigate={handleNavigate} /> : null
       default: return <WelcomeScreen onNavigate={handleNavigate} />
     }
   }
