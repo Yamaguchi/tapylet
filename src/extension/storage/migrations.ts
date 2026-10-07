@@ -114,8 +114,11 @@ export const ensureWalletNetworkKeys = async (
   const networks = { ...wallet.networks }
   let legacyMainnetAddress = wallet.legacyMainnetAddress
 
-  if (wallet.address && legacyMainnetAddress === undefined) {
-    legacyMainnetAddress = wallet.address
+  // @tapylet/core's getWallet already copies a pre-split `address` into
+  // `legacyMainnetAddress`, so the record still holding `address` (dropped on
+  // the save below) is what marks it as pre-split, not the copy being missing.
+  if (wallet.address) {
+    legacyMainnetAddress ??= wallet.address
     changed = true
     migratedFromLegacyFormat = true
   }

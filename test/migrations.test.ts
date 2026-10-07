@@ -276,6 +276,28 @@ describe("ensureWalletNetworkKeys", () => {
     expect(mainnet.address).not.toBe(testnet.address)
   })
 
+  it("still reports a pre-split wallet as migrated after @tapylet/core's getWallet copied its address", async () => {
+    // The shape walletStorage.getWallet() returns for a pre-split record.
+    const wallet = baseWallet({
+      networks: {},
+      address: "1LegacyAddressXXXXXXXXXXXXXXXXXXXX",
+      publicKey: "02legacy",
+      legacyMainnetAddress: "1LegacyAddressXXXXXXXXXXXXXXXXXXXX",
+    })
+
+    const { wallet: migrated, changed, migratedFromLegacyFormat } =
+      await ensureWalletNetworkKeys(wallet)
+
+    expect(changed).toBe(true)
+    expect(migratedFromLegacyFormat).toBe(true)
+    expect(migrated.legacyMainnetAddress).toBe("1LegacyAddressXXXXXXXXXXXXXXXXXXXX")
+    expect(migrated.address).toBeUndefined()
+
+    // Once saved without `address`, the next unlock does not report it again.
+    const second = await ensureWalletNetworkKeys(migrated)
+    expect(second.migratedFromLegacyFormat).toBe(false)
+  })
+
   it("does nothing for a wallet that already has both keys", async () => {
     const wallet = baseWallet({
       networks: {
