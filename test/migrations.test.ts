@@ -256,6 +256,7 @@ describe("ensureWalletNetworkKeys", () => {
       networks: undefined as unknown as Record<number, never>,
       address: "1LegacyAddressXXXXXXXXXXXXXXXXXXXX",
       publicKey: "02legacy",
+      encryptedMnemonic: "stale-copy-of-the-mnemonic",
     })
 
     const { wallet: migrated, changed, migratedFromLegacyFormat } =
@@ -266,6 +267,7 @@ describe("ensureWalletNetworkKeys", () => {
     expect(migrated.legacyMainnetAddress).toBe("1LegacyAddressXXXXXXXXXXXXXXXXXXXX")
     expect(migrated.address).toBeUndefined()
     expect(migrated.publicKey).toBeUndefined()
+    expect(migrated.encryptedMnemonic).toBeUndefined()
 
     const mainnet = migrated.networks[NETWORKS.mainnet.id]
     const testnet = migrated.networks[NETWORKS.testnet.id]

@@ -128,7 +128,8 @@
     "password": "Password",
     "unlock": "Unlock",
     "errors": {
-      "incorrectPassword": "Incorrect password"
+      "incorrectPassword": "Incorrect password",
+      "walletUpdateFailed": "Failed to update the wallet data. Please unlock again."
     }
   },
   "assetDetail": {

@@ -128,7 +128,8 @@
     "password": "パスワード",
     "unlock": "ロック解除",
     "errors": {
-      "incorrectPassword": "パスワードが正しくありません"
+      "incorrectPassword": "パスワードが正しくありません",
+      "walletUpdateFailed": "ウォレットデータの更新に失敗しました。もう一度ロック解除してください"
     }
   },
   "assetDetail": {

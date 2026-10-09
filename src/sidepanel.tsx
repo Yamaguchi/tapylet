@@ -48,6 +48,7 @@ function SidePanelContent() {
   const { network, isReady: isNetworkReady } = useNetwork()
   const [screen, setScreen] = useState<AppScreen>("loading")
   const [tempMnemonic, setTempMnemonic] = useState<string | null>(null)
+  const [tempMnemonicRestored, setTempMnemonicRestored] = useState(false)
   const [walletNetworks, setWalletNetworks] = useState<Record<number, NetworkWalletKeys> | null>(null)
   const [legacyMainnetAddress, setLegacyMainnetAddress] = useState<string | null>(null)
   const address = walletNetworks?.[network.id]?.address ?? null
@@ -127,18 +128,28 @@ function SidePanelContent() {
   useAutoLock(isUnlockedScreen ? autoLockMinutes * 60 * 1000 : 0, handleAutoLock)
 
   const handleNavigate = (newScreen: AppScreen) => setScreen(newScreen)
-  const handleMnemonicGenerated = (mnemonic: string) => setTempMnemonic(mnemonic)
-  const handleMnemonicEntered = (mnemonic: string) => setTempMnemonic(mnemonic)
+  const handleMnemonicGenerated = (mnemonic: string) => {
+    setTempMnemonic(mnemonic)
+    setTempMnemonicRestored(false)
+  }
+  const handleMnemonicEntered = (mnemonic: string) => {
+    setTempMnemonic(mnemonic)
+    setTempMnemonicRestored(true)
+  }
   const recordConsent = (docs: readonly LegalDocId[]) =>
     consentStore
       .agree([...docs])
       .catch((err) => console.error("Failed to store the consent:", err))
   // The welcome screen took the consent for both documents, so the wallet and
   // the record of what was agreed to come into being together.
-  const handleWalletCreated = (networks: Record<number, NetworkWalletKeys>) => {
+  const handleWalletCreated = (
+    networks: Record<number, NetworkWalletKeys>,
+    legacyAddress: string | null,
+  ) => {
     setWalletNetworks(networks)
-    setLegacyMainnetAddress(null)
+    setLegacyMainnetAddress(legacyAddress)
     setTempMnemonic(null)
+    setTempMnemonicRestored(false)
     recordConsent(LEGAL_DOC_IDS)
   }
   const handleConsentAgree = async () => {
@@ -177,7 +188,7 @@ function SidePanelContent() {
       case "create": return <CreateWalletScreen onNavigate={handleNavigate} onMnemonicGenerated={handleMnemonicGenerated} />
       case "mnemonic-display": return tempMnemonic ? <MnemonicDisplayScreen mnemonic={tempMnemonic} onNavigate={handleNavigate} /> : null
       case "mnemonic-confirm": return tempMnemonic ? <MnemonicConfirmScreen mnemonic={tempMnemonic} onNavigate={handleNavigate} /> : null
-      case "password-setup": return tempMnemonic ? <PasswordSetupScreen mnemonic={tempMnemonic} onNavigate={handleNavigate} onWalletCreated={handleWalletCreated} /> : null
+      case "password-setup": return tempMnemonic ? <PasswordSetupScreen mnemonic={tempMnemonic} restored={tempMnemonicRestored} onNavigate={handleNavigate} onWalletCreated={handleWalletCreated} /> : null
       case "restore": return <RestoreWalletScreen onNavigate={handleNavigate} onMnemonicEntered={handleMnemonicEntered} />
       case "unlock": return <UnlockScreen onNavigate={handleNavigate} onUnlock={handleUnlock} />
       case "consent": return <ConsentUpdateScreen docs={outdatedConsents} onAgree={handleConsentAgree} />

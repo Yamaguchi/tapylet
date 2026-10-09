@@ -143,6 +143,7 @@ export const ensureWalletNetworkKeys = async (
   }
   delete migrated.address
   delete migrated.publicKey
+  delete migrated.encryptedMnemonic
 
   return { wallet: migrated, changed: true, migratedFromLegacyFormat }
 }

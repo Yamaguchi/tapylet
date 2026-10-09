@@ -50,13 +50,20 @@ export const UnlockScreen: React.FC<UnlockScreenProps> = ({
         return
       }
 
-      const { wallet: migrated, changed, migratedFromLegacyFormat } = await ensureWalletNetworkKeys(wallet)
-      if (changed) {
-        await walletStorage.saveWallet(migrated)
-      }
+      // The password is already verified here, so a failure from this point
+      // on is not the user's input and must not be reported as one.
+      try {
+        const { wallet: migrated, changed, migratedFromLegacyFormat } = await ensureWalletNetworkKeys(wallet)
+        if (changed) {
+          await walletStorage.saveWallet(migrated)
+        }
 
-      onUnlock(migrated.networks, migrated.legacyMainnetAddress ?? null)
-      onNavigate(migratedFromLegacyFormat ? "legacy-migration-notice" : "main")
+        onUnlock(migrated.networks, migrated.legacyMainnetAddress ?? null)
+        onNavigate(migratedFromLegacyFormat ? "legacy-migration-notice" : "main")
+      } catch (err) {
+        console.error("Failed to update the wallet data:", err)
+        setError(t("unlock.errors.walletUpdateFailed"))
+      }
     } catch (err) {
       console.error("Failed to unlock:", err)
       setError(t("unlock.errors.incorrectPassword"))
